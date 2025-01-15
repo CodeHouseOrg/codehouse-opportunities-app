@@ -31,6 +31,11 @@ export default function Events() {
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+  const calendarItemsPerPage = 2;
+
   //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
   const [listSelected, setListSelected] = useState(false);
@@ -201,6 +206,18 @@ export default function Events() {
     return filteredEvents;
   };
 
+  const filteredEvents = getFilteredEvents();
+
+  // Pagination Logic
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedEvents = calendarSelected
+    ? filteredEvents.slice(0, calendarItemsPerPage)
+    : filteredEvents.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
+
   const onAttendClick = (event) => {
     setSelectedEvent(event);
     setOpen(true);
@@ -364,16 +381,33 @@ export default function Events() {
         </Center>
       </Box>
 
-      {/* Event Items */}
       <div className="flex flex-col justify-center items-center gap-2">
-        {getFilteredEvents().map((event) => (
-          <EventItem
-            key={event.id}
-            event={event}
-            onAttendClick={() => onAttendClick(event)}
-          />
+        {paginatedEvents.map((event) => (
+          <EventItem key={event.id} event={event} />
         ))}
       </div>
+
+      {!calendarSelected && (
+        <Flex justify="center" mt={4}>
+          <Button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Text mx={4}>
+            Page {currentPage} of {totalPages}
+          </Text>
+          <Button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </Flex>
+      )}
       <EventModal open={open} onClose={onCloseModal} event={selectedEvent} />
     </Flex>
   );
