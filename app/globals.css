@@ -7,15 +7,33 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Calendar CSS */
+abbr.react-calendar__tile--active {
+  color: black;
+}
+
+/* 
+ I commented this out because it messed with the sizing of my forms, inputs, and checkbox. 
+/* div {
+  color: black;
+  width: auto;
+  height: auto;
+} */
+
+.react-calendar__tile--active {
+  background-color: #6f0010 !important;
+  border-radius: 50%;
+}
+
+/* Border won't show */
+.react-calendar__tile--now {
+  /* background-color: seashell !important; */
+  border-color: #6f0010;
+  border-radius: 50%;
 }

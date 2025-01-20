@@ -14,7 +14,9 @@ export const Nav = () => {
       justify="space-between"
       align="center"
     >
-      <Image src="/images/codehouse-logo.png" alt="codehouse logo" />
+      <Link href="/">
+        <Image src="/images/codehouse-logo.png" alt="codehouse logo" />
+      </Link>
       <HStack gap="1rem" align="center" justify="center">
         <Link
           as={NextLink}
@@ -28,7 +30,7 @@ export const Nav = () => {
         </Link>
         <Link
           as={NextLink}
-          href="/partners"
+          href="/partners/submit-opportunity"
           _hover={{ bg: "primaryGray" }}
           color="black"
           p="0.5rem"

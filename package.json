@@ -12,6 +12,7 @@
     "@chakra-ui/react": "^3.3.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^3.10.0",
     "airtable": "^0.12.2",
     "dotenv": "^16.4.7",
     "framer-motion": "^11.17.0",
