@@ -54,29 +54,23 @@ export default function Events() {
       const headers = {
         'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
         'Content-Type': 'application/json',
-        ...options.headers, // Merge with any existing headers passed in options
+        ...options.headers,
       };
 
       const response = await fetch(url, { ...options, headers });
-
-      // Throw an error if the response was not 2xx
       if (!response.ok) {
         throw new Error(`Fetch failed. ${response.status} ${response.statusText}`)
-      }
-
+      };
+  
       let data = await response.json();
-
-      // return a tuple: [data, error]
-      return [data, null];
+      return [data, null]; 
     }
+
     catch (error) {
-      // if there was an error, log it and return null
       console.error(error.message);
-
-      // return a tuple: [data, error]
-      return [null, error];
-    }
-  }
+      return [null, error]; 
+    };
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -160,7 +154,6 @@ export default function Events() {
       });
   }, []);
 
-  // Rendered Information
   const filteredEvents = events.filter((event) => {
     if (!event.EventDate) return false
 
