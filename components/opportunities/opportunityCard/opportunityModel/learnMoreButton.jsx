@@ -2,12 +2,13 @@ import { Button } from "@chakra-ui/react";
 
 
 
-const ModalButton = () => {
+const ModalButton = ({ url }) => {
 
+    console.log(url)
     return (
-        <Button className="bg-[#2C2C2C] text-white px-[1.75em] text-sm">
+        <a className="bg-[#2C2C2C] text-white p-[.75em] px-[1em] text-sm rounded" href={url} target="_blank">
             Learn More
-        </Button>
+        </a>
 
     )
 
