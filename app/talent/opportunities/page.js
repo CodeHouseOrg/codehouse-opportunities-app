@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 export default function Opportunities() {
     const [opportunities, setOpportunities] = useState([]);
+    const [modalData, setModalData] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
@@ -19,12 +20,20 @@ export default function Opportunities() {
                 if (data) {
                     setOpportunities(data.records)
                 }
+
             } catch (e) {
                 console.error(e)
             }
         }
         fetchOpportunities()
     }, [])
+
+    const handleModalData = (e) => {
+        setIsModalOpen(true)
+        const buttonId = e.target.id;
+        const data = opportunities.find((opportunity) => opportunity.id === buttonId)
+        setModalData(data)
+    }
 
     return (
         <Flex bg="primaryWhite" minH="100vh" justify="center" align="center" direction="column" pt='10rem'>
@@ -38,9 +47,9 @@ export default function Opportunities() {
                 width: "100%",
                 maxWidth: "1200px", // Optional max width for the grid container
             }}>
-                <Jobs opportunitiesData={opportunities} openModal={() => setIsModalOpen(true)} />
+                <Jobs opportunitiesData={opportunities} openModal={() => setIsModalOpen(true)} handleModalData={handleModalData} />
             </div>
-            <OpportunityModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <OpportunityModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} modalData={modalData} />
         </Flex>
     );
 }

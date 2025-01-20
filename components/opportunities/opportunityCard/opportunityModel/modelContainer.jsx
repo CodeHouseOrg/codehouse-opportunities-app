@@ -3,7 +3,7 @@ import ModalHeader from "./modelHeader";
 import ModalButton from "./learnMoreButton";
 import { CloseButton } from "@/components/ui/close-button";
 
-const ModalContainer = ({ onCloseModal }) => {
+const ModalContainer = ({ onCloseModal, modalData }) => {
 
     return (
         <div>
@@ -11,9 +11,9 @@ const ModalContainer = ({ onCloseModal }) => {
                 <CloseButton className="text-black" onClick={onCloseModal} />
             </div>
 
-            <ModalHeader />
+            <ModalHeader {...modalData.fields}/>
             <div className=" place-items-center">
-                <ModalData />
+                <ModalData {...modalData.fields} />
                 <ModalButton />
             </div>
         </div>
