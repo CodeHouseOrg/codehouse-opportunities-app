@@ -176,8 +176,8 @@ export default function SubmitOpportunity() {
 
           <Button
             type="submit"
-            bg="primaryBlack"
-            color="primaryWhite"
+            bg="black"
+            color="white"
             onClick={handleSubmit(onSubmit)}
           >
             Submit

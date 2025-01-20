@@ -15,13 +15,15 @@ const OpportunityContainer = ({
     openModal,
 }
 ) => {
+    console.log(opportunityType)
     return (
-        <Box py={8} className="shadow-md border-solid border-[1px] border-[#B3B3B3] border-[filter: blur(4px)] w-[16rem] p-10">
-            <OpportunitiesLogo type={opportunityType} />
-            <OpportunityDetails opportunityName={opportunityName} opportunityType={opportunityType} partner={partner} />
+        <Box py={8} className="shadow-md border-solid border-[1px] border-[#B3B3B3] border-[filter: blur(4px)] p-10 grid grid-rows-subgrid row-span-3">
+            <OpportunitiesLogo type={opportunityType[0]} />
+            <OpportunityDetails opportunityName={opportunityName} opportunityType={opportunityType[0]} partner={partner} />
             <button
                 onClick={openModal}
-                className='bg-[#2C2C2C] px-[1.5em] text-white py-[0.5em] rounded'
+                className='bg-[#2C2C2C] px-[1.5em] text-white py-[0.5em] w-fit rounded mx-auto'
+                id={partner}
             >
                 Learn More
             </button>
