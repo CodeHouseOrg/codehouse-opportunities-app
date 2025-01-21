@@ -61,12 +61,14 @@ export default function SubmitOpportunity() {
       base("Opportunities")
         .select()
         .eachPage((records, fetchNextPage) => {
-          setPartnerItems((prev) => [
-            ...prev,
-            ...records
+          setPartnerItems((prev) => {
+            const newItems = records
               .filter((record) => record.fields["Opportunity Name"])
-              .map((record) => record.fields["Opportunity Name"]),
-          ]);
+              .map((record) => record.fields["Opportunity Name"]);
+
+            return Array.from(new Set([...prev, ...newItems]));
+          });
+
           setOppType((prev) => {
             const newItems = records
               .filter((record) => record.fields["Opportunity Type"])
@@ -74,14 +76,34 @@ export default function SubmitOpportunity() {
 
             return Array.from(new Set([...prev, ...newItems]));
           });
+
           fetchNextPage();
         });
     };
+
     fetchPartners();
   }, []);
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data) => {
+    try {
+      const newRecord = {
+        fields: {
+          Partner: data.Partner,
+          "Opportunity Type": data.OpportunityType,
+          "Event DateTime": data.EventDateTime,
+          Title: data.Title,
+          URL: data.URL,
+          Description: data.Description,
+          "Start Date": data.StartDate || undefined,
+          "End Date": data.EndDate,
+          Verify: data.Verify,
+        },
+      };
+
+      base("Opportunities").create(newRecord);
+    } catch (error) {
+      console.error("Error submitting opportunity:", error);
+    }
   };
 
   return (
@@ -163,7 +185,11 @@ export default function SubmitOpportunity() {
           </Stack>
 
           <label className="self-start text-left">
-            <input className="mr-2" type="checkbox" {...register("Verify")} />
+            <input
+              type="checkbox"
+              className="mr-2 bg-background"
+              {...register("Verify")}
+            />
             I verify the responses above are correct.*
             <br />
             <span className="text-gray-500 text-sm">
