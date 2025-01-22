@@ -4,7 +4,15 @@ import { useState, useEffect } from "react";
 import { PartnerModal } from "@/components/partnerModal";
 import PartnersGrid from "@/components/PartnersGrid";
 
-import { Flex } from "@chakra-ui/react";
+import {
+  Flex,
+  Center,
+  Textarea,
+  Input,
+  Heading,
+  Text,
+  Box,
+} from "@chakra-ui/react";
 import { createListCollection } from "@chakra-ui/react";
 import {
   SelectContent,
@@ -29,7 +37,10 @@ export default function Partners() {
   const itemsPerPage = 6; // Only 6 partner cards will display
   const [selectedPartner, setSelectedPartner] = useState(null); // Store the selected partner's data
   const [isPartnerModalOpen, setPartnerModalOpen] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [partnerTypes, setPartnerTypes] = useState([]);
+  const [partnerTiers, setPartnerTiers] = useState([]);
+  const [partnersInvolved, setInvolved] = useState([]);
   const onOpenModal = () => setPartnerModalOpen(true);
   const onCloseModal = () => setPartnerModalOpen(false);
 
@@ -47,7 +58,25 @@ export default function Partners() {
 
         const data = await result.json();
         if (data && data.records) {
-          setPartners(data.records); // Save the data.records into our partners state
+          setPartners(data.records);
+          const partnerTypesSet = new Set();
+          const partnerTierSet = new Set();
+          const involvedSet = new Set();
+          for (const p of data.records) {
+            console.log("partners", p)
+            if (!partnerTypesSet.has(p.fields["Partner Type"])) {
+              partnerTypesSet.add(p.fields['Partner Type']);
+            } if (!partnerTierSet.has(p.fields["Partner Tier"])) {
+              partnerTierSet.add(p.fields['Partner Tier']);
+            } if (!involvedSet.has(p.fields["Is Involved in CodeHouse"])) {
+              involvedSet.add(p.fields['Is Involved in CodeHouse']);
+            }
+          }
+
+          setPartnerTypes(Array.from(partnerTypesSet).map((p) => ({label: p, value: p})));
+          setPartnerTiers(Array.from(partnerTierSet).map((p) =>({label: p, value: p})));
+          setInvolved(Array.from(involvedSet).map((p) =>({label: p, value: p})));
+
         }
       } catch (e) {
         console.error(e);
@@ -60,6 +89,15 @@ export default function Partners() {
     setSelectedPartner(partner);
     onOpenModal();
   };
+
+  console.log("TIERS!!", partnerTiers)
+
+  const filteredPartners = partners.filter((p) => {
+    if (p.fields["Partner Name"].includes(searchQuery)) return true;
+    if (p.fields["Partner Type"].includes(partnerTypes)) return true;
+    if (p.fields["Partner Tier"].includes(partnerTiers)) return true;
+    if (p.fields["Is Involved in CodeHouse"].includes(partnersInvolved)) return true;
+  })
 
   return (
     <Flex
@@ -75,14 +113,16 @@ export default function Partners() {
       <section>
         <h1>Our Partners</h1>
         <h2>Learn more about top companies looking for top talent</h2>
+        <Input placeholder="Search by Name" onChange={(e) => setSearchQuery(e.currentTarget.value)}/>
         <Flex gap="40px">
-          <SelectRoot collection={frameworks} size="sm" width="320px">
+
+          <SelectRoot collection={createListCollection({items: partnerTypes})} size="sm" width="320px" onChange={(e) => setPartnerTypes(e.currentTarget.value)}>
             <SelectLabel>Partner Type</SelectLabel>
             <SelectTrigger>
-              <SelectValueText placeholder="Any" />
+              <SelectValueText placeholder="Any"/>
             </SelectTrigger>
             <SelectContent>
-              {frameworks.items.map((type) => (
+              {partnerTypes.map((type) => (
                 <SelectItem item={type} key={type.value}>
                   {type.label}
                 </SelectItem>
@@ -90,13 +130,13 @@ export default function Partners() {
             </SelectContent>
           </SelectRoot>
 
-          <SelectRoot collection={frameworks} size="sm" width="320px">
+          <SelectRoot collection={createListCollection({items: partnerTiers})} size="sm" width="320px" onChange={(e) => setPartnerTiers(e.currentTarget.value)}> 
             <SelectLabel>Partner Tier</SelectLabel>
             <SelectTrigger>
               <SelectValueText placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              {frameworks.items.map((tier) => (
+              {partnerTiers.map((tier) => (
                 <SelectItem item={tier} key={tier.value}>
                   {tier.label}
                 </SelectItem>
@@ -104,13 +144,13 @@ export default function Partners() {
             </SelectContent>
           </SelectRoot>
 
-          <SelectRoot collection={frameworks} size="sm" width="320px">
+          <SelectRoot collection={createListCollection({items: partnersInvolved})} size="sm" width="320px" onChange={(e) => setInvolved(e.currentTarget.value)}>
             <SelectLabel>Involved in CodeHouse Programs</SelectLabel>
             <SelectTrigger>
               <SelectValueText placeholder="Yes" />
             </SelectTrigger>
             <SelectContent>
-              {frameworks.items.map((program) => (
+              {partnersInvolved.map((program) => (
                 <SelectItem item={program} key={program.value}>
                   {program.label}
                 </SelectItem>
