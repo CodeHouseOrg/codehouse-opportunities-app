@@ -2,7 +2,7 @@
 
 import { Box, Text, Button, Flex } from "@chakra-ui/react";
 
-export default function EventItem({ event }) {
+export default function EventItem({ event,openModal }) {
   const startDate = event.EventDate ? new Date(event.EventDate) : null;
   
   if (startDate instanceof Date) {

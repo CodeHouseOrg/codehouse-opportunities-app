@@ -1,6 +1,7 @@
 import { Heading, VStack } from "@chakra-ui/react";
 import Link from "next/link";
 import React from "react";
+import { Example } from "./example";
 
 export const Footer = () => {
   return (
