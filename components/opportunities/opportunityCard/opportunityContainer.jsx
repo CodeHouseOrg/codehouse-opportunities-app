@@ -4,6 +4,7 @@ import OpportunitiesLogo from "./opportunityLogo";
 import { OpportunityModal } from "./opportunityModel/index.jsx";
 
 const OpportunityContainer = ({
+    "id": opportunityId,
     "Opportunity Type": opportunityType,
     "Opportunity Description": opportunityDescription,
     "Opportunity Name": opportunityName,
@@ -13,16 +14,19 @@ const OpportunityContainer = ({
     "End Date": endDate,
     "Opportunity URL": opportunityUrl,
     openModal,
+    handleModalData
 }
+
 ) => {
-    console.log(opportunityType)
+
     return (
-        <Box py={8} className="shadow-md border-solid border-[1px] border-[#B3B3B3] border-[filter: blur(4px)] w-[16rem] p-10">
+        <Box py={8} className="shadow-md border-solid border-[1px] border-[#B3B3B3] border-[filter: blur(4px)] p-8 grid grid-rows-subgrid row-span-3">
             <OpportunitiesLogo type={opportunityType[0]} />
             <OpportunityDetails opportunityName={opportunityName} opportunityType={opportunityType[0]} partner={partner} />
             <button
-                onClick={openModal}
-                className='bg-[#2C2C2C] px-[1.5em] text-white py-[0.5em] rounded'
+                onClick={handleModalData}
+                className='bg-[#2C2C2C] px-[1.5em] text-white py-[0.5em] w-fit rounded mx-auto'
+                id={opportunityId}
             >
                 Learn More
             </button>

@@ -24,7 +24,7 @@ const OpportunityLogo = ({ type }) => {
   }
 
   return (
-    <Box paddingBottom={5}>
+    <Box>
       <Image src={logo} alt={altText} className="size-9" />
     </Box>
   )

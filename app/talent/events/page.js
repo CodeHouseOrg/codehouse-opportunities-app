@@ -23,7 +23,7 @@ export default function Events() {
   const [hosts, setHosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // State to store the selected date
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -58,23 +58,23 @@ export default function Events() {
       };
 
       const response = await fetch(url, { ...options, headers });
-  
+
       // Throw an error if the response was not 2xx
       if (!response.ok) {
         throw new Error(`Fetch failed. ${response.status} ${response.statusText}`)
       }
-  
+
       let data = await response.json();
-  
+
       // return a tuple: [data, error]
-      return [data, null]; 
+      return [data, null];
     }
     catch (error) {
       // if there was an error, log it and return null
       console.error(error.message);
-  
+
       // return a tuple: [data, error]
-      return [null, error]; 
+      return [null, error];
     }
   }
 
@@ -153,28 +153,28 @@ export default function Events() {
 
     fetchData();
     fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`)
-    .then(([data, error]) => {
-      if (error) {
-        console.error('Error fetching events:', error);
-      };
-    });
+      .then(([data, error]) => {
+        if (error) {
+          console.error('Error fetching events:', error);
+        };
+      });
   }, []);
 
   // Rendered Information
   const filteredEvents = events.filter((event) => {
     if (!event.EventDate) return false
-    
+
     const eventDateObj = new Date(event.EventDate + 'T00:00:00Z');
     // Timezone adjustment to guarantee local time
     eventDateObj.setMinutes(eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset());
-    
+
     const isSameDay = selectedDate.getDate() === eventDateObj.getDate();
     const isSameMonth = selectedDate.getMonth() === eventDateObj.getMonth();
     const isSameYear = selectedDate.getFullYear() === eventDateObj.getFullYear();
-  
+
     return isSameDay && isSameMonth && isSameYear;
   });
-  
+
   console.log("Filtered Events:", filteredEvents);
 
   return (
