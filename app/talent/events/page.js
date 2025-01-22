@@ -205,7 +205,7 @@ export default function Events() {
       </Box>
 
       {/* Search and Filter Section */}
-      <Box width="100%" maxW="600px">
+      <Box width="350px" maxW="600px">
         {/* Search Input */}
         <Box mb={6} position="relative" textAlign="center">
           <Input
@@ -279,7 +279,7 @@ export default function Events() {
             </>
           )}
           {/* Host Filter */}
-          <Box width="200px" textAlign="left">
+          <Box width="350px" textAlign="left">
             <Text fontSize="14px" fontWeight="medium" mb={2} color="gray.700">
               Host
             </Text>
