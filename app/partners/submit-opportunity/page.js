@@ -57,18 +57,10 @@ export default function SubmitOpportunity() {
   });
 
   useEffect(() => {
-    const fetchPartners = () => {
+    const fetchOpportunities = () => {
       base("Opportunities")
         .select()
         .eachPage((records, fetchNextPage) => {
-          setPartnerItems((prev) => {
-            const newItems = records
-              .filter((record) => record.fields["Opportunity Name"])
-              .map((record) => record.fields["Opportunity Name"]);
-
-            return Array.from(new Set([...prev, ...newItems]));
-          });
-
           setOppType((prev) => {
             const newItems = records
               .filter((record) => record.fields["Opportunity Type"])
@@ -81,7 +73,13 @@ export default function SubmitOpportunity() {
         });
     };
 
-    fetchPartners();
+    const fetchPartnerSelectItems = async () => {
+      const partners = await base('Partners').select().all();
+      setPartnerItems(partners.map(p => p.fields['Partner Name']))
+    }
+
+    fetchOpportunities();
+    fetchPartnerSelectItems();
   }, []);
 
   const onSubmit = async (data) => {
