@@ -3,6 +3,7 @@ import { Flex } from "@chakra-ui/react";
 import OpportunitiesFilter from "@/components/opportunities/OpportunitiesFilters";
 import { OpportunityModal } from "@/components/opportunities/opportunityCard/opportunityModel"
 import { Jobs } from "@/components/opportunities/opportunityCard/jobs"
+import OpportunityHeaderContainer from "@/components/opportunities/opportunityHeader/opportunityHeaderContainer";
 import { useEffect, useState } from "react";
 
 
@@ -14,7 +15,7 @@ export default function Opportunities() {
     useEffect(() => {
         const fetchOpportunities = async () => {
             try {
-                const result = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Opportunities`,
+                const result = await fetch(`https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Opportunities?maxRecords=6`,
                     { headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}` } })
                 const data = await result.json()
                 if (data) {
@@ -37,6 +38,7 @@ export default function Opportunities() {
 
     return (
         <Flex bg="primaryWhite" minH="100vh" justify="center" align="center" direction="column" pt='10rem'>
+            <OpportunityHeaderContainer />
             <OpportunitiesFilter />
             <br></br>
             <div style={{
