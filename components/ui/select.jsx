@@ -4,25 +4,20 @@ import { Select as ChakraSelect, Portal } from '@chakra-ui/react';
 import { CloseButton } from './close-button';
 import * as React from 'react';
 
-export const SelectTrigger = React.forwardRef(function SelectTrigger(
-	props,
-	ref
-) {
-	const { children, clearable, ...rest } = props;
-	return (
-		<ChakraSelect.Control {...rest}>
-			<ChakraSelect.Trigger
-				ref={ref}
-				border='none'>
-				{children}
-			</ChakraSelect.Trigger>
-			<ChakraSelect.IndicatorGroup>
-				{clearable && <SelectClearTrigger />}
-				<ChakraSelect.Indicator />
-			</ChakraSelect.IndicatorGroup>
-		</ChakraSelect.Control>
-	);
-});
+export const SelectTrigger = React.forwardRef(
+  function SelectTrigger(props, ref) {
+    const { children, clearable, ...rest } = props
+    return (
+      <ChakraSelect.Control {...rest}>
+        <ChakraSelect.Trigger ref={ref}>{children}</ChakraSelect.Trigger>
+        <ChakraSelect.IndicatorGroup>
+          {clearable && <SelectClearTrigger />}
+          <ChakraSelect.Indicator />
+        </ChakraSelect.IndicatorGroup>
+      </ChakraSelect.Control>
+    )
+  },
+)
 
 const SelectClearTrigger = React.forwardRef(function SelectClearTrigger(
 	props,
