@@ -10,10 +10,22 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-	NativeSelectRoot,
 	NativeSelectField,
+	NativeSelectRoot,
 } from '@/components/ui/native-select';
+import {
+	SelectRoot,
+	SelectTrigger,
+	SelectContent,
+	SelectItem,
+	SelectValueText,
+	SelectLabel,
+} from '@/components/ui/select';
+import { createListCollection } from '@chakra-ui/react';
 
+import Airtable from 'airtable';
+import apiKey from '@/Airtable.configure';
+import './placeholder.css';
 const partnerRegistrationSchema = z.object({
 	firstName: z.string().min(1, 'First name is required'),
 	lastName: z.string().min(1, 'Last name is required'),
@@ -21,7 +33,9 @@ const partnerRegistrationSchema = z.object({
 	organization: z.string().min(1, 'Organization is required'),
 	website: z.string().url('Invalid URL'),
 	location: z.string().min(1, 'Location is required'),
-	industry: z.string().min(1, 'Industry is required'),
+	industry: z
+		.array(z.string())
+		.min(1, 'At least one industry must be selected'), // Accepts an array of strings
 	description: z.string().min(10, 'Description must be at least 10 characters'),
 	agreement: z.boolean().refine((val) => val, 'You must agree to the terms'),
 });
@@ -31,6 +45,8 @@ const PartnerRegistrationForm = () => {
 		register,
 		control,
 		handleSubmit,
+		setValue,
+		watch,
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(partnerRegistrationSchema),
@@ -39,8 +55,55 @@ const PartnerRegistrationForm = () => {
 		},
 	});
 
-	const onSubmit = (data) => {
-		console.log('Form Data:', data);
+	const airtable = new Airtable({ apiKey });
+	const base = airtable.base('app0yr12RYAc5sdmT');
+
+	const industries = createListCollection({
+		items: [
+			{ label: 'Technology', value: 'Technology' },
+			{ label: 'Healthcare', value: 'Healthcare' },
+			{ label: 'Finance', value: 'Finance' },
+			{ label: 'Education', value: 'Education' },
+			{ label: 'Other', value: 'Other' },
+		],
+	});
+
+	const selectedIndustry = watch('industry');
+	console.log('Selected industry:', selectedIndustry);
+
+	const onSubmit = async (data) => {
+		try {
+			console.log('Submitted data:', data);
+
+			const allowedIndustries = industries.items.map((item) => item.value);
+
+			if (
+				!data.industry.length ||
+				!allowedIndustries.includes(data.industry[0])
+			) {
+				alert('Invalid industry selected.');
+				return;
+			}
+
+			await base('Partners').create({
+				'Organization Name': data.organization,
+				'Organization Website': data.website,
+				'Organization Location': data.location,
+				'Organization Description': data.description,
+				'Organization Type': data.industry[0], // Single value
+			});
+
+			await base('Partner Points of Contact').create({
+				'Point of Contact First Name': data.firstName,
+				'Point of Contact Last Name': data.lastName,
+				'Point of Contact Email': data.email,
+			});
+
+			alert('Submission successful!');
+		} catch (error) {
+			console.error('Error submitting form:', error);
+			alert('There was an error submitting the form. Please try again.');
+		}
 	};
 
 	return (
@@ -136,19 +199,32 @@ const PartnerRegistrationForm = () => {
 						</Field>
 
 						<Field label='Industry*'>
-							<NativeSelectRoot>
-								<NativeSelectField
-									{...register('industry')}
-									placeholder='Technology'
-									items={[
-										'Technology',
-										'Healthcare',
-										'Finance',
-										'Education',
-										'Other',
-									]}
-								/>
-							</NativeSelectRoot>
+							<Controller
+								control={control}
+								name='industry'
+								render={({ field }) => (
+									<SelectRoot
+										name={field.name}
+										value={field.value || ''} // Ensure value is a single string
+										onValueChange={({ value }) => field.onChange(value)} // Update with the selected value
+										onInteractOutside={() => field.onBlur()}
+										collection={industries}
+										className='border border-gray-300 rounded focus:ring-2 focus:ring-blue-500'>
+										<SelectTrigger>
+											<SelectValueText placeholder='Select an industry' />
+										</SelectTrigger>
+										<SelectContent>
+											{industries.items.map((industry) => (
+												<SelectItem
+													item={industry}
+													key={industry.value}>
+													{industry.label}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</SelectRoot>
+								)}
+							/>
 							{errors.industry && (
 								<p className='text-red-500'>{errors.industry.message}</p>
 							)}
@@ -179,13 +255,14 @@ const PartnerRegistrationForm = () => {
 									/>
 								)}
 							/>
-							{errors.agreement && (
-								<p className='text-red-500'>{errors.agreement.message}</p>
-							)}
+
 							<Stack
 								ml={2}
 								spacing={0}>
 								<span className='text-black text-start'>
+									{errors.agreement && (
+										<p className='text-red-500'>{errors.agreement.message}</p>
+									)}
 									I verify the responses above are correct.
 								</span>
 								<span className='text-sm text-gray-600 text-start'>
