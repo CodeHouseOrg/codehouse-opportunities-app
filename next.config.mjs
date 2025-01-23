@@ -1,18 +1,8 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   experimental: {
-//     optimizePackageImports: ["@chakra-ui/react"],
-//   },
-// };
-// import dotenv from "dotenv";
-// dotenv.config();
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    optimizePackageImports: ["@chakra-ui/react"],
+  },
+};
 
-// const apiKey = process.env.NEXT_PUBLIC_AIRTABLE_API_KEY;
-
-// if (!apiKey) {
-//   throw new Error("Missing AIRTABLE_API_KEY");
-// }
-
-// export default apiKey;
-
-// export default nextConfig;
+export default nextConfig;
