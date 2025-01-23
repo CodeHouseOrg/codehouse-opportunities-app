@@ -11,6 +11,7 @@
   "dependencies": {
     "@chakra-ui/react": "^3.2.0",
     "@emotion/react": "^11.13.5",
+    "@hookform/resolvers": "^3.10.0",
     "airtable": "^0.12.2",
     "dotenv": "^16.4.7",
     "next": "15.0.3",
@@ -18,6 +19,11 @@
     "react": "19.0.0-rc-66855b96-20241106",
     "react-calendar": "^5.1.0",
     "react-dom": "19.0.0-rc-66855b96-20241106",
+<<<<<<< HEAD
+=======
+    "react-hook-form": "^7.54.2",
+    "zod": "^3.24.1",
+>>>>>>> d90de56f070e300144a74a1cb2fd2974ad50eb70
     "react-icons": "^5.4.0"
   },
   "devDependencies": {

@@ -18,21 +18,22 @@ abbr.react-calendar__tile--active {
   color: black;
 }
 
-div {
+/* 
+ I commented this out because it messed with the sizing of my forms, inputs, and checkbox. 
+/* div {
   color: black;
   width: auto;
   height: auto;
-}
+} */
 
 .react-calendar__tile--active {
-  background-color: #6F0010 !important;
+  background-color: #6f0010 !important;
   border-radius: 50%;
 }
 
 /* Border won't show */
 .react-calendar__tile--now {
   /* background-color: seashell !important; */
-  border-color: #6F0010;
+  border-color: #6f0010;
   border-radius: 50%;
 }
-

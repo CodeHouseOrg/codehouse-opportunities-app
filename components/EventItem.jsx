@@ -4,6 +4,10 @@ import { Box, Text, Button, Flex } from "@chakra-ui/react";
 
 export default function EventItem({ event }) {
   const startDate = event.EventDate ? new Date(event.EventDate) : null;
+  
+  if (startDate instanceof Date) {
+    startDate.setMinutes(startDate.getMinutes()+startDate.getTimezoneOffset());
+  }
 
   const formattedDate = startDate
     ? `${startDate.toLocaleString("default", { month: "short" })} ${startDate.getDate()}`
