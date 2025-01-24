@@ -382,33 +382,54 @@ export default function Events() {
       </Box>
 
       <div className="flex flex-col justify-center items-center gap-2">
-        {paginatedEvents.map((event) => (
-          <EventItem key={event.id} event={event} />
-        ))}
+        {/* Render paginated events */}
+        {calendarSelected
+          ? filteredEvents
+              .slice(
+                (currentPage - 1) * calendarItemsPerPage,
+                currentPage * calendarItemsPerPage
+              )
+              .map((event) => <EventItem key={event.id} event={event} />)
+          : paginatedEvents.map((event) => (
+              <EventItem key={event.id} event={event} />
+            ))}
       </div>
 
-      {!calendarSelected && (
-        <Flex justify="center" mt={4}>
-          <Button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <Text mx={4}>
-            Page {currentPage} of {totalPages}
-          </Text>
-          <Button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </Flex>
-      )}
-      <EventModal open={open} onClose={onCloseModal} event={selectedEvent} />
+      {/* Unified Pagination for both views */}
+      <Flex justify="center" mt={4}>
+        <Button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Text mx={4}>
+          Page {currentPage} of{" "}
+          {calendarSelected
+            ? Math.ceil(events.length / calendarItemsPerPage)
+            : totalPages}
+        </Text>
+        <Button
+          onClick={() =>
+            setCurrentPage((prev) =>
+              Math.min(
+                prev + 1,
+                calendarSelected
+                  ? Math.ceil(events.length / calendarItemsPerPage)
+                  : totalPages
+              )
+            )
+          }
+          disabled={
+            currentPage ===
+            (calendarSelected
+              ? Math.ceil(events.length / calendarItemsPerPage)
+              : totalPages)
+          }
+        >
+          Next
+        </Button>
+      </Flex>
     </Flex>
   );
 }
