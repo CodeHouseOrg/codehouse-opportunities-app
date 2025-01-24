@@ -26,7 +26,6 @@ const PartnersGrid = ({ partners, currentPage, setCurrentPage, itemsPerPage, onO
           <Box
             key={i}
             border="1px solid #ddd"
-            borderRadius="12px"
             p={3}
             boxShadow="md"
             transition="all 0.2s"
