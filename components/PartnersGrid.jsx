@@ -26,6 +26,7 @@ const PartnersGrid = ({ partners, currentPage, setCurrentPage, itemsPerPage, onO
           <Box
             key={i}
             border="1px solid #ddd"
+            borderRadius="12px"
             p={3}
             boxShadow="md"
             transition="all 0.2s"
@@ -36,6 +37,7 @@ const PartnersGrid = ({ partners, currentPage, setCurrentPage, itemsPerPage, onO
             bg="white"
             textAlign="center"
             mb={6}
+            onClick={() => onOpenModal(partner)} // Pass the clicked partner data to the modal
           >
             <Center>
               <Box
@@ -62,7 +64,7 @@ const PartnersGrid = ({ partners, currentPage, setCurrentPage, itemsPerPage, onO
             <Text fontSize="sm" color="gray.600">
               {partner.fields["Partner Location"]}
             </Text>
-            <Button mt={4} colorScheme="black" size="sm" onClick={onOpenModal}>
+            <Button mt={4} colorScheme="black" size="sm">
               View Profile
             </Button>
           </Box>
