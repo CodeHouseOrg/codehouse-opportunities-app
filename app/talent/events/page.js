@@ -374,13 +374,32 @@ export default function Events() {
           </IconButton>
         </Flex>
         <Center>
-          {/* Calendar component with onChange handler */}
           {calendarSelected && (
-            <Calendar onChange={handleDateChange} value={selectedDate} />
+            <Calendar
+              onChange={handleDateChange}
+              value={selectedDate}
+              tileClassName={({ date, view }) =>
+                view === "month" &&
+                !!selectedDate && date.toDateString() === new Date(selectedDate).toDateString()
+                  ? "selected-circle"
+                  : null
+              }
+            />
           )}
+
+          {/* Add inline styles to ensure circle */}
+          <style jsx global>{`
+            .react-calendar__tile.selected-circle {
+              border-radius: 50% !important; /* Make it a true circle */
+              height: 50px !important; /* Adjust size */
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: auto;
+            }
+          `}</style>
         </Center>
       </Box>
-
       <div className="flex flex-col justify-center items-center gap-2">
         {/* Render paginated events */}
         {calendarSelected
