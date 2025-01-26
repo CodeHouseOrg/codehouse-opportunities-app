@@ -19,7 +19,7 @@ export default function SelectFilter({ title, options, placeholder, multiple, on
       onValueChange={onValueChange}
     >
       <SelectLabel>{title}</SelectLabel>
-      <SelectTrigger clearable={true} className="border-1 rounded-lg">
+      <SelectTrigger clearable={true} className="border rounded-lg">
         <SelectValueText placeholder={placeholder} className="px-2" />
       </SelectTrigger>
       <SelectContent>
