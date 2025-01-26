@@ -5,6 +5,12 @@ import { AIRTABLE, AIRTABLE_API_KEY, useEffectAsync } from "@/app/utils";
 import { useState } from "react";
 import GalleryItem from "@/components/gallery/GalleryItem";
 import SelectFilter from "@/components/gallery/SelectFilter";
+import {
+  PaginationPrevTrigger,
+  PaginationNextTrigger,
+  PaginationRoot,
+  PaginationItems,
+} from "@/components/ui/pagination";
 
 const codehouseInvolvement = "Codehouse Involvement";
 
@@ -167,36 +173,30 @@ function Student({ fields, onClick }) {
   );
 }
 
-function Students({ filterData, query }) {
+export default function () {
+  const pageSize = 6;
+  const [filterData, setFilterData] = useState({});
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [students, setStudents] = useState([]);
 
   useEffectAsync(async () => {
     try {
+      // it might be better to fetch one page at a time from airtable, but this isn't done right now
+      // because there doesn't seem to be a way to get the total number of records without retrieving
+      // them all (needed for the Pagination component)
       const res = await AIRTABLE.table("Students")
         .select({
-          maxRecords: 6, // TODO: pagination
           filterByFormula: createFilterFormula(filterData, query),
         })
         .all();
-
+      setPage(1);
       setStudents(res);
     } catch (err) {
       console.error(err);
     }
   }, [filterData, query]);
 
-  return (
-    <>
-      {students.map((student) => (
-        <Student key={student.id} fields={student.fields} />
-      ))}
-    </>
-  );
-}
-
-export default function () {
-  const [filterData, setFilterData] = useState({});
-  const [query, setQuery] = useState("");
   return (
     <Flex
       justify="flex-start"
@@ -225,10 +225,32 @@ export default function () {
         </GridItem>
         <Filters setFilterData={setFilterData} />
       </Grid>
-      <Grid templateRows="repeat(2, 1fr)" templateColumns="repeat(3, 1fr)" gapX="20" gapY="10">
-        <Students filterData={filterData} query={query} />
+
+      <Grid
+        templateRows="repeat(2, 1fr)"
+        templateColumns="repeat(3, 1fr)"
+        gapX="20"
+        gapY="10"
+        pb="16"
+      >
+        {students.slice((page - 1) * pageSize, page * pageSize).map((student) => (
+          <Student key={student.id} fields={student.fields} />
+        ))}
       </Grid>
-      {/* Page selector here */}
+
+      <PaginationRoot
+        page={page}
+        count={students.length}
+        pageSize={pageSize}
+        variant="solid"
+        siblingCount={1}
+        onPageChange={(e) => setPage(e.page)}
+        size="sm"
+      >
+        <PaginationPrevTrigger border="none" />
+        <PaginationItems border="none" />
+        <PaginationNextTrigger border="none" />
+      </PaginationRoot>
     </Flex>
   );
 }
