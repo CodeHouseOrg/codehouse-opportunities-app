@@ -173,6 +173,12 @@ export default function Events() {
       });
     }
 
+    if (inputDate.length) {
+      filteredEvents = filteredEvents.filter(e => {
+        return isSameDay(new Date(e.EventDate), new Date(inputDate));
+      });
+    }
+
     if (selectedHost.length && selectedHost !== "All") {
       filteredEvents = filteredEvents.filter((event) => {
         return event.EventHost === selectedHost;
