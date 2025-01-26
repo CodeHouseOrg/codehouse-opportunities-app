@@ -23,9 +23,8 @@ export default function Events() {
   const [hosts, setHosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // State to store the selected date
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedHost, setSelectedHost] = useState("");
 
   //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
@@ -52,31 +51,25 @@ export default function Events() {
   const fetchEvents = async (url, options = {}) => {
     try {
       const headers = {
-        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-        ...options.headers, // Merge with any existing headers passed in options
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        "Content-Type": "application/json",
+        ...options.headers,
       };
 
       const response = await fetch(url, { ...options, headers });
-
-      // Throw an error if the response was not 2xx
       if (!response.ok) {
-        throw new Error(`Fetch failed. ${response.status} ${response.statusText}`)
+        throw new Error(
+          `Fetch failed. ${response.status} ${response.statusText}`
+        );
       }
 
       let data = await response.json();
-
-      // return a tuple: [data, error]
       return [data, null];
-    }
-    catch (error) {
-      // if there was an error, log it and return null
+    } catch (error) {
       console.error(error.message);
-
-      // return a tuple: [data, error]
       return [null, error];
     }
-  }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -152,30 +145,50 @@ export default function Events() {
     }
 
     fetchData();
-    fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`)
-      .then(([data, error]) => {
+    fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`).then(
+      ([data, error]) => {
         if (error) {
-          console.error('Error fetching events:', error);
-        };
-      });
+          console.error("Error fetching events:", error);
+        }
+      }
+    );
   }, []);
 
-  // Rendered Information
-  const filteredEvents = events.filter((event) => {
-    if (!event.EventDate) return false
+  const getFilteredEvents = () => {
+    let filteredEvents = [...events];
+    if (selectedDate) {
+      filteredEvents = filteredEvents.filter((event) => {
+        const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
+        // Timezone adjustment to guarantee local time
+        eventDateObj.setMinutes(
+          eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
+        );
 
-    const eventDateObj = new Date(event.EventDate + 'T00:00:00Z');
-    // Timezone adjustment to guarantee local time
-    eventDateObj.setMinutes(eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset());
+        const isSameDay = selectedDate.getDate() === eventDateObj.getDate();
+        const isSameMonth = selectedDate.getMonth() === eventDateObj.getMonth();
+        const isSameYear =
+          selectedDate.getFullYear() === eventDateObj.getFullYear();
 
-    const isSameDay = selectedDate.getDate() === eventDateObj.getDate();
-    const isSameMonth = selectedDate.getMonth() === eventDateObj.getMonth();
-    const isSameYear = selectedDate.getFullYear() === eventDateObj.getFullYear();
+        if (isSameDay && isSameMonth && isSameYear) return true;
+      });
+    }
 
-    return isSameDay && isSameMonth && isSameYear;
-  });
+    if (selectedHost.length && selectedHost !== "All") {
+      filteredEvents = filteredEvents.filter((event) => {
+        return event.EventHost === selectedHost;
+      });
+    }
 
-  console.log("Filtered Events:", filteredEvents);
+    if (searchValue.length) {
+      filteredEvents = filteredEvents.filter((event) => {
+        return event.EventName.toLowerCase().includes(
+          searchValue.toLowerCase()
+        );
+      });
+    }
+
+    return filteredEvents;
+  };
 
   return (
     <Flex
@@ -336,9 +349,11 @@ export default function Events() {
       </Box>
 
       {/* Event Items */}
-      {filteredEvents.map((event) => (
-        <EventItem key={event.id} event={event} />
-      ))}
+      <div className="flex flex-col justify-center items-center gap-2">
+        {getFilteredEvents().map((event) => (
+          <EventItem key={event.id} event={event} />
+        ))}
+      </div>
     </Flex>
   );
-};
+}
