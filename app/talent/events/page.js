@@ -1,20 +1,32 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import EventItem from '@/components/EventItem';
-import { Flex, Text, Input, Box, Container, Center } from '@chakra-ui/react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+import { useState, useEffect } from "react";
+import EventItem from "@/components/EventItem";
+import {
+  Flex,
+  Text,
+  Input,
+  Box,
+  Container,
+  Center,
+  IconButton,
+  Icon,
+} from "@chakra-ui/react";
+import { Button } from "@/components/ui/button";
+import CalendarSvg from "@/components/CalendarSvg";
+import ListSvg from "@/components/ListSvg";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 export default function Events() {
-	const [searchValue, setSearchValue] = useState('');
-	const [hosts, setHosts] = useState([]);
-	const [events, setEvents] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [selectedDate, setSelectedDate] = useState(null);
-	const [selectedHost, setSelectedHost] = useState('');
+  const [searchValue, setSearchValue] = useState("");
+  const [hosts, setHosts] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedHost, setSelectedHost] = useState("");
 
-	//State to toggle color of List and Calendar
+  //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
   const [listSelected, setListSelected] = useState(false);
 
@@ -33,159 +45,153 @@ export default function Events() {
     setListSelected((pre) => !pre);
   };
 
-	const AIRTABLE_API_KEY = process.env.NEXT_PUBLIC_AIRTABLE_API_KEY;
-	const BASE_ID = process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
+  const AIRTABLE_API_KEY = process.env.NEXT_PUBLIC_AIRTABLE_API_KEY;
+  const BASE_ID = process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
 
-	const fetchEvents = async (url, options = {}) => {
-		try {
-			const headers = {
-				Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-				'Content-Type': 'application/json',
-				...options.headers,
-			};
+  const fetchEvents = async (url, options = {}) => {
+    try {
+      const headers = {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
 
-			const response = await fetch(url, { ...options, headers });
-			if (!response.ok) {
-				throw new Error(
-					`Fetch failed. ${response.status} ${response.statusText}`
-				);
-			}
+      const response = await fetch(url, { ...options, headers });
+      if (!response.ok) {
+        throw new Error(
+          `Fetch failed. ${response.status} ${response.statusText}`
+        );
+      }
 
-			let data = await response.json();
-			return [data, null];
-		} catch (error) {
-			console.error(error.message);
-			return [null, error];
-		}
-	};
+      let data = await response.json();
+      return [data, null];
+    } catch (error) {
+      console.error(error.message);
+      return [null, error];
+    }
+  };
 
-	useEffect(() => {
-		async function fetchData() {
-			try {
-				console.log('Fetching events and hosts...');
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        console.log("Fetching events and hosts...");
 
-				// Fetch Events Table
-				const eventsResponse = await fetch(
-					`https://api.airtable.com/v0/${BASE_ID}/Events`,
-					{
-						headers: {
-							Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-						},
-					}
-				);
+        // Fetch Events Table
+        const eventsResponse = await fetch(
+          `https://api.airtable.com/v0/${BASE_ID}/Events`,
+          {
+            headers: {
+              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+            },
+          }
+        );
 
-				if (!eventsResponse.ok) {
-					throw new Error(
-						`Error fetching events: ${eventsResponse.status}`
-					);
-				}
+        if (!eventsResponse.ok) {
+          throw new Error(`Error fetching events: ${eventsResponse.status}`);
+        }
 
-				const eventsData = await eventsResponse.json();
-				setEvents(
-					eventsData.records.map((record) => ({
-						id: record.id,
-						EventName: record.fields['Event Name'],
-						EventDate: record.fields['Event Start Date '],
-						EventEndTime: record.fields['Event End Date '],
-						EventDescription: record.fields['Event Description '],
-						EventLocation: record.fields['Event Location '],
-						EventHost:
-							record.fields['Host (Link from Partners)']?.[0] ||
-							'Unknown',
-						EventURL: record.fields['Event URL'],
-					}))
-				);
+        const eventsData = await eventsResponse.json();
+        setEvents(
+          eventsData.records.map((record) => ({
+            id: record.id,
+            EventName: record.fields["Event Name"],
+            EventDate: record.fields["Event Start Date "],
+            EventEndTime: record.fields["Event End Date "],
+            EventDescription: record.fields["Event Description "],
+            EventLocation: record.fields["Event Location "],
+            EventHost:
+              record.fields["Host (Link from Partners)"]?.[0] || "Unknown",
+            EventURL: record.fields["Event URL"],
+          }))
+        );
 
-				// Fetch Hosts
-				const partnersResponse = await fetch(
-					`https://api.airtable.com/v0/${BASE_ID}/Partners`,
-					{
-						headers: {
-							Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-						},
-					}
-				);
+        // Fetch Hosts
+        const partnersResponse = await fetch(
+          `https://api.airtable.com/v0/${BASE_ID}/Partners`,
+          {
+            headers: {
+              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+            },
+          }
+        );
 
-				if (!partnersResponse.ok) {
-					throw new Error(
-						`Error fetching partners: ${partnersResponse.status}`
-					);
-				}
+        if (!partnersResponse.ok) {
+          throw new Error(
+            `Error fetching partners: ${partnersResponse.status}`
+          );
+        }
 
-				const partnersData = await partnersResponse.json();
+        const partnersData = await partnersResponse.json();
 
-				const partnerMap = {};
-				partnersData.records.forEach((record) => {
-					partnerMap[record.id] = record.fields['Partner Name'];
-				});
+        const partnerMap = {};
+        partnersData.records.forEach((record) => {
+          partnerMap[record.id] = record.fields["Partner Name"];
+        });
 
-				setHosts(Object.values(partnerMap));
+        setHosts(Object.values(partnerMap));
 
-				// Map Event Hosts
-				setEvents((prevEvents) =>
-					prevEvents.map((event) => ({
-						...event,
-						EventHost:
-							partnerMap[event.EventHost] || 'Unknown Host',
-					}))
-				);
-			} catch (error) {
-				console.error('Error fetching data:', error);
-			} finally {
-				setLoading(false);
-			}
-		}
+        // Map Event Hosts
+        setEvents((prevEvents) =>
+          prevEvents.map((event) => ({
+            ...event,
+            EventHost: partnerMap[event.EventHost] || "Unknown Host",
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-		fetchData();
-		fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`).then(
-			([data, error]) => {
-				if (error) {
-					console.error('Error fetching events:', error);
-				}
-			}
-		);
-	}, []);
+    fetchData();
+    fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`).then(
+      ([data, error]) => {
+        if (error) {
+          console.error("Error fetching events:", error);
+        }
+      }
+    );
+  }, []);
 
-	const getFilteredEvents = () => {
-		let filteredEvents = [...events];
-		if (selectedDate) {
-			filteredEvents = filteredEvents.filter((event) => {
-				const eventDateObj = new Date(event.EventDate + 'T00:00:00Z');
-				// Timezone adjustment to guarantee local time
-				eventDateObj.setMinutes(
-					eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
-				);
+  const getFilteredEvents = () => {
+    let filteredEvents = [...events];
+    if (selectedDate) {
+      filteredEvents = filteredEvents.filter((event) => {
+        const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
+        // Timezone adjustment to guarantee local time
+        eventDateObj.setMinutes(
+          eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
+        );
 
-				const isSameDay =
-					selectedDate.getDate() === eventDateObj.getDate();
-				const isSameMonth =
-					selectedDate.getMonth() === eventDateObj.getMonth();
-				const isSameYear =
-					selectedDate.getFullYear() === eventDateObj.getFullYear();
+        const isSameDay = selectedDate.getDate() === eventDateObj.getDate();
+        const isSameMonth = selectedDate.getMonth() === eventDateObj.getMonth();
+        const isSameYear =
+          selectedDate.getFullYear() === eventDateObj.getFullYear();
 
-				if (isSameDay && isSameMonth && isSameYear) return true;
-			});
-		}
+        if (isSameDay && isSameMonth && isSameYear) return true;
+      });
+    }
 
-		if (selectedHost.length && selectedHost !== 'All') {
-			filteredEvents = filteredEvents.filter((event) => {
-				return event.EventHost === selectedHost;
-			});
-		}
+    if (selectedHost.length && selectedHost !== "All") {
+      filteredEvents = filteredEvents.filter((event) => {
+        return event.EventHost === selectedHost;
+      });
+    }
 
-		if (searchValue.length) {
-			filteredEvents = filteredEvents.filter((event) => {
-				return event.EventName.toLowerCase().includes(
-					searchValue.toLowerCase()
-				);
-			});
-		}
+    if (searchValue.length) {
+      filteredEvents = filteredEvents.filter((event) => {
+        return event.EventName.toLowerCase().includes(
+          searchValue.toLowerCase()
+        );
+      });
+    }
 
-		return filteredEvents;
-	};
+    return filteredEvents;
+  };
 
-	return (
-		<Flex
+  return (
+    <Flex
       bg="primaryWhite"
       minH="100vh"
       justify="flex-start"
@@ -342,10 +348,12 @@ export default function Events() {
         </Center>
       </Box>
 
-			{/* Event Items */}
-			{getFilteredEvents().map((event) => (
-				<EventItem key={event.id} event={event} />
-			))}
-		</Flex>
-	);
+      {/* Event Items */}
+      <div className="flex flex-col justify-center items-center gap-2">
+        {getFilteredEvents().map((event) => (
+          <EventItem key={event.id} event={event} />
+        ))}
+      </div>
+    </Flex>
+  );
 }
