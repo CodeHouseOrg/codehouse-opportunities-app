@@ -226,13 +226,7 @@ export default function () {
         <Filters setFilterData={setFilterData} />
       </Grid>
 
-      <Grid
-        templateRows="repeat(2, 1fr)"
-        templateColumns="repeat(3, 1fr)"
-        gapX="20"
-        gapY="10"
-        pb="16"
-      >
+      <Grid templateRows="repeat(2, 1fr)" templateColumns="repeat(3, 1fr)" gap="20" pb="16">
         {students.slice((page - 1) * pageSize, page * pageSize).map((student) => (
           <Student key={student.id} fields={student.fields} />
         ))}
