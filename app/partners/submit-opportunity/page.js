@@ -117,7 +117,7 @@ export default function SubmitOpportunity() {
 
       <Center>
         <Fieldset.Content w="1/2" align="center" px="4rem">
-          <Field label="Partner*">
+          <Field label="Partner*" pb="3">
             <NativeSelectRoot>
               <NativeSelectField
                 {...register("Partner")}
@@ -129,7 +129,7 @@ export default function SubmitOpportunity() {
             )}
           </Field>
 
-          <Field label="Opportunity Type*">
+          <Field label="Opportunity Type*" pb="3">
             <NativeSelectRoot>
               <NativeSelectField
                 {...register("OpportunityType")}
@@ -141,26 +141,26 @@ export default function SubmitOpportunity() {
             )}
           </Field>
 
-          <Field label="Time and Date of Event*">
+          <Field label="Time and Date of Event*" pb="3">
             <Input {...register("EventDateTime")} placeholder="12/1/24" />
             {errors.EventDateTime && (
               <Text color="red.500">{errors.EventDateTime.message}</Text>
             )}
           </Field>
 
-          <Field label="Title of Opportunity*">
+          <Field label="Title of Opportunity*" pb="3">
             <Input {...register("Title")} placeholder="abc.co/jobs" />
             {errors.Title && (
               <Text color="red.500">{errors.Title.message}</Text>
             )}
           </Field>
 
-          <Field label="Opportunity URL*">
+          <Field label="Opportunity URL*" pb="3">
             <Input {...register("URL")} placeholder="abc.co" />
             {errors.URL && <Text color="red.500">{errors.URL.message}</Text>}
           </Field>
 
-          <Field label="Opportunity Description*">
+          <Field label="Opportunity Description*" pb="3">
             <Textarea
               {...register("Description")}
               placeholder="We're Hiring!"
@@ -170,7 +170,7 @@ export default function SubmitOpportunity() {
             )}
           </Field>
 
-          <Stack direction="row">
+          <Stack direction="row" pb="3">
             <Field label="Start Date">
               <Input type="date" {...register("StartDate")} />
             </Field>
