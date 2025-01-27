@@ -9,7 +9,7 @@ import * as React from 'react'
 export const Button = React.forwardRef(function Button(props, ref) {
   const { loading, disabled, loadingText, children, ...rest } = props
   return (
-    <ChakraButton disabled={loading || disabled} ref={ref} {...rest}>
+    <ChakraButton disabled={loading || disabled} _hover={{bg: '#852221'}} ref={ref} {...rest}>
       {loading && !loadingText ? (
         <>
           <AbsoluteCenter display='inline-flex'>

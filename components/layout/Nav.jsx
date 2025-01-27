@@ -15,12 +15,12 @@ export const Nav = () => {
       align="center"
     >
       <Link href="/">
-        <Image src="/images/codehouse-logo.png" alt="codehouse logo" />
+        <Image src="/images/logo.svg" alt="codehouse logo" />
       </Link>
       <HStack gap="1rem" align="center" justify="center">
         <Link
           as={NextLink}
-          href="/talent"
+          href="/talent/events"
           _hover={{ bg: "primaryGray" }}
           color="black"
           p="0.5rem"

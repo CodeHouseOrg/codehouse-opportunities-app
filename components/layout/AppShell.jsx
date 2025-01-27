@@ -3,7 +3,7 @@ import { Nav } from "./Nav";
 
 export function AppShell({ children }) {
   return (
-    <div className="w-full min-h-screen relative">
+    <div className="relative w-full min-h-screen">
       <Nav />
       {children}
       <Footer />

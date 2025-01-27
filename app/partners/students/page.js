@@ -1,16 +1,18 @@
 "use client";
 
-import { Flex, Grid, createListCollection, GridItem } from "@chakra-ui/react";
-import {
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectRoot,
-  SelectTrigger,
-  SelectValueText,
-} from "@/components/ui/select";
+import { Flex, Grid, createListCollection, GridItem, Heading, Input } from "@chakra-ui/react";
 import { AIRTABLE, AIRTABLE_API_KEY, useEffectAsync } from "@/app/utils";
 import { useState } from "react";
+import GalleryItem from "@/components/gallery/GalleryItem";
+import SelectFilter from "@/components/gallery/SelectFilter";
+import {
+  PaginationPrevTrigger,
+  PaginationNextTrigger,
+  PaginationRoot,
+  PaginationItems,
+} from "@/components/ui/pagination";
+
+const codehouseInvolvement = "Codehouse Involvement";
 
 const createGraduationYearList = async () => {
   const res = async (direction, def) => {
@@ -35,41 +37,53 @@ const createGraduationYearList = async () => {
   return createListCollection({ items });
 };
 
-function Filter({ title, options, placeholder, multiple }) {
-  return (
-    <SelectRoot
-      size="sm"
-      width="230px"
-      collection={options}
-      multiple={multiple}
-      closeOnSelect={!multiple}
-      disabled={!options.items.length}
-      fontFamily="var(--font-mulish)"
-    >
-      <SelectLabel>{title}</SelectLabel>
-      <SelectTrigger clearable={true} className="border-1 rounded-lg">
-        <SelectValueText placeholder={placeholder} className="px-2" />
-      </SelectTrigger>
-      <SelectContent>
-        {options.items.map((name) => (
-          <SelectItem item={name} key={name}>
-            {name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </SelectRoot>
-  );
-}
+const createFilterFormula = (filters, query) => {
+  const join = (fn, arr) => {
+    if (arr.length === 1) {
+      return arr[0];
+    } else if (arr.length > 1) {
+      return `${fn}(${arr.join(", ")})`;
+    } else {
+      return "";
+    }
+  };
 
-function Filters() {
-  const [filterData, setFilterData] = useState({});
+  const conds = [];
+  for (const field in filters) {
+    if (field === codehouseInvolvement) {
+      if (filters[field]) {
+        conds.push(filters[field] == "Yes" ? `{${field}} = "Scholar"` : `{${field}} != "Scholar"`);
+      }
+    } else if (typeof filters[field] === "string") {
+      conds.push(`{${field}} = "${filters[field]}"`);
+    } else if (filters[field]?.length) {
+      // XXX: FIND can return partial matches (ie FIND("Hi", "Hill") will return true), but there
+      // doesn't seem to be another way to check if a multiselect field includes a record using a
+      // formula
+      conds.push(
+        join(
+          "OR",
+          filters[field].map((v) => `FIND("${v}", {${field}})`)
+        )
+      );
+    }
+  }
+
+  if (query) {
+    conds.push(`FIND("${query}", {First Name} & {Last Name })`);
+  }
+  return join("AND", conds);
+};
+
+function Filters({ setFilterData }) {
+  const [filterOptions, setFilterOptions] = useState({});
   const filters = [
-    { id: "fldt4rL3gdIROwiLz", name: "School" },
-    { name: "Graduation Year" },
-    { id: "fldFNV5dsHlQMnbN6", name: "Majors" },
-    { id: "fldOgy7iyYEoWcc6X", name: "Career Paths" },
-    { id: "fldoGL9NSqRGsewcW", name: "Skills" },
-    { name: "Codehouse Scholar" },
+    { fieldName: "School ", name: "School" },
+    { fieldName: "Graduation Year", name: "Graduation Year", manual: true },
+    { fieldName: "Major", name: "Majors" },
+    { fieldName: "Career Interest", name: "Career Paths" },
+    { fieldName: "Technical Skills", name: "Skills" },
+    { fieldName: codehouseInvolvement, name: "Codehouse Scholar", manual: true },
   ];
   const emptyList = createListCollection({ items: [] });
 
@@ -87,12 +101,12 @@ function Filters() {
       ).then((r) => r.json());
       const students = resp.tables.find((table) => table?.id === "tblZuTMwzYU52he5m");
       const result = {};
-      for (const { id, name } of filters) {
-        if (!id) {
+      for (const { fieldName, name, manual } of filters) {
+        if (manual) {
           continue;
         }
 
-        const fieldData = students.fields.find((field) => field?.id === id);
+        const fieldData = students.fields.find((field) => field?.name === fieldName);
         if (
           !fieldData ||
           (fieldData.type !== "multipleSelects" && fieldData.type !== "singleSelect")
@@ -114,7 +128,7 @@ function Filters() {
         items: createListCollection({ items: ["Yes", "No"] }),
         multi: false,
       };
-      setFilterData(result);
+      setFilterOptions(result);
     } catch (err) {
       /* TODO: display error */
       console.error(err);
@@ -123,26 +137,114 @@ function Filters() {
 
   return (
     <>
-      {filters.map(({ name }) => (
-        <Filter
+      {filters.map(({ name, fieldName }) => (
+        <SelectFilter
           key={name}
           title={name}
-          options={filterData[name]?.items ?? emptyList}
-          multiple={filterData[name]?.multi}
-          placeholder={filterData[name] ? "All" : "Loading..."}
+          options={filterOptions[name]?.items ?? emptyList}
+          multiple={filterOptions[name]?.multi}
+          placeholder={filterOptions[name] ? "All" : "Loading..."}
+          onValueChange={(e) =>
+            setFilterData((v) => ({
+              ...v,
+              [fieldName]: filterOptions[name]?.multi ? e.value : e.value?.[0],
+            }))
+          }
         />
       ))}
     </>
   );
 }
 
-export default function () {
+function Student({ fields, onClick }) {
   return (
-    <Flex justify="flex-start" align="center" direction="column" pt={24}>
-      <Grid templateRows="repeat(3, 1fr)" templateColumns="repeat(3, 1fr)" gap="6">
-        <GridItem colSpan="3">{/* Search box here */}</GridItem>
-        <Filters />
+    <GalleryItem
+      icon={
+        <div className="w-10 h-10 rounded-full flex justify-center items-center text-white bg-[#2C2C2C]">
+          <p className="text-lg">{fields["First Name"][0]}</p>
+        </div>
+      }
+      line1={`${fields["First Name"]} ${fields["Last Name "]}`}
+      line2={fields["School "]}
+      line3={fields["Graduation Year"]}
+      buttonText="View Profile"
+      onClick={onClick}
+    />
+  );
+}
+
+export default function () {
+  const pageSize = 6;
+  const [filterData, setFilterData] = useState({});
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [students, setStudents] = useState([]);
+
+  useEffectAsync(async () => {
+    try {
+      // it might be better to fetch one page at a time from airtable, but this isn't done right now
+      // because there doesn't seem to be a way to get the total number of records without retrieving
+      // them all (needed for the Pagination component)
+      const res = await AIRTABLE.table("Students")
+        .select({
+          filterByFormula: createFilterFormula(filterData, query),
+        })
+        .all();
+      setPage(1);
+      setStudents(res);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [filterData, query]);
+
+  return (
+    <Flex
+      justify="flex-start"
+      align="center"
+      direction="column"
+      pt="24"
+      pb="16"
+      fontFamily="var(--font-mulish)"
+    >
+      <Heading size="5xl" fontWeight="bold" pt="6">
+        Our Students
+      </Heading>
+      <Heading size="4xl" fontWeight="light" textAlign="center" className="w-[40%]" pb="4">
+        View profiles of top talent from the CodeHouse network.
+      </Heading>
+
+      <Grid templateRows="0.8fr 1fr 1fr" templateColumns="repeat(3, 1fr)" gapX="6" gapY="2" pb="8">
+        <GridItem colSpan="3">
+          {/* TODO: might be a good idea to debounce this */}
+          <Input
+            type="text"
+            placeholder="Search"
+            className="rounded-3xl h-full"
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </GridItem>
+        <Filters setFilterData={setFilterData} />
       </Grid>
+
+      <Grid templateRows="repeat(2, 1fr)" templateColumns="repeat(3, 1fr)" gap="20" pb="16">
+        {students.slice((page - 1) * pageSize, page * pageSize).map((student) => (
+          <Student key={student.id} fields={student.fields} />
+        ))}
+      </Grid>
+
+      <PaginationRoot
+        page={page}
+        count={students.length}
+        pageSize={pageSize}
+        variant="solid"
+        siblingCount={1}
+        onPageChange={(e) => setPage(e.page)}
+        size="sm"
+      >
+        <PaginationPrevTrigger border="none" />
+        <PaginationItems border="none" />
+        <PaginationNextTrigger border="none" />
+      </PaginationRoot>
     </Flex>
   );
 }

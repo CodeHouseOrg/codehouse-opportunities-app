@@ -4,7 +4,6 @@ import { Field } from "@/components/ui/field"
 import {
   SelectContent,
   SelectItem,
-
   SelectRoot,
   SelectTrigger,
   SelectValueText,
@@ -12,15 +11,15 @@ import {
 import { useState } from "react";
 
 const OpportunitiesFilter = () => {
-  const [searchValue, setSearchValue] = useState(""); 
+  const [searchValue, setSearchValue] = useState("");
   const items = [
     { value: "option1", label: "Option 1" },
     { value: "option2", label: "Option 2" },
     { value: "option3", label: "Option 3" },
-  ]; 
+  ];
 
   return (
-    <Fieldset.Root style={{ maxWidth: "500px", margin: "0 auto"}}>
+    <Fieldset.Root style={{ maxWidth: "500px", margin: "0 auto" }}>
       <Fieldset.Content style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         <Field style={{ display: "block", position: "relative" }}>
           <div style={{ position: "relative", width: "100%" }}>
@@ -31,7 +30,7 @@ const OpportunitiesFilter = () => {
               placeholder="Search by Opportunity Name"
               style={{
                 width: "100%",
-                padding: "8px 36px 8px 12px", 
+                padding: "8px 36px 8px 12px",
                 border: "1px solid #ccc",
                 borderRadius: "20px",
                 fontSize: "14px",
@@ -72,7 +71,7 @@ const OpportunitiesFilter = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "1px 12px", 
+                  padding: "1px 12px",
                   border: "1px solid #ccc",
                   borderRadius: "10px",
                   fontSize: "14px",
@@ -98,10 +97,10 @@ const OpportunitiesFilter = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "1px 12px", 
+                  padding: "1px 12px",
                   border: "1px solid #ccc",
                   borderRadius: "10px",
-                  fontSize: "14px", 
+                  fontSize: "14px",
                   width: "100%",
                 }}
               >

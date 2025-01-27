@@ -12,10 +12,10 @@ const OpportunityLogo = ({ type }) => {
   if (type === "Full-time Employment" || type === "Internship/Co-op") {
     logo = work;
     altText = "full-time/internships";
-  } else if (type === "General Events (Summits, Career Fairs, etc)") {
+  } else if (type === "General Events (Summits, Career Fairs, etc)" || type === 'Education Opportunity') {
     logo = zap;
     altText = "events";
-  } else if (type === "Scholarships") {
+  } else if (type === "Scholarships" || type === 'Funding Opportunity') {
     logo = Award;
     altText = "scholarships";
   } else {
@@ -24,7 +24,7 @@ const OpportunityLogo = ({ type }) => {
   }
 
   return (
-    <Box paddingBottom={5}>
+    <Box>
       <Image src={logo} alt={altText} className="size-9" />
     </Box>
   )

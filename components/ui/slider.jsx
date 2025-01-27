@@ -26,7 +26,7 @@ function _optionalChain(ops) {
   }
   return value
 }
-import { Slider as ChakraSlider, HStack } from '@chakra-ui/react'
+import { Slider as ChakraSlider, For, HStack } from '@chakra-ui/react'
 import * as React from 'react'
 
 export const Slider = React.forwardRef(function Slider(props, ref) {
@@ -55,46 +55,53 @@ export const Slider = React.forwardRef(function Slider(props, ref) {
 
   return (
     <ChakraSlider.Root ref={ref} thumbAlignment='center' {...rest}>
-      {label && !showValue && (
-        <ChakraSlider.Label fontWeight='medium'>{label}</ChakraSlider.Label>
-      )}
+      {label && !showValue && <ChakraSlider.Label>{label}</ChakraSlider.Label>}
       {label && showValue && (
         <HStack justify='space-between'>
-          <ChakraSlider.Label fontWeight='medium'>{label}</ChakraSlider.Label>
+          <ChakraSlider.Label>{label}</ChakraSlider.Label>
           <ChakraSlider.ValueText />
         </HStack>
       )}
-      <ChakraSlider.Control mb={hasMarkLabel ? '4' : undefined}>
+      <ChakraSlider.Control data-has-mark-label={hasMarkLabel || undefined}>
         <ChakraSlider.Track>
           <ChakraSlider.Range />
         </ChakraSlider.Track>
-        {_optionalChain([
-          value,
-          'optionalAccess',
-          (_6) => _6.map,
-          'call',
-          (_7) =>
-            _7((_, index) => (
-              <ChakraSlider.Thumb key={index} index={index}>
-                <ChakraSlider.HiddenInput />
-              </ChakraSlider.Thumb>
-            )),
-        ])}
+        <SliderThumbs value={value} />
+        <SliderMarks marks={marks} />
       </ChakraSlider.Control>
-      {_optionalChain([marks, 'optionalAccess', (_8) => _8.length]) && (
-        <ChakraSlider.MarkerGroup>
-          {marks.map((mark, index) => {
-            const value = typeof mark === 'number' ? mark : mark.value
-            const label = typeof mark === 'number' ? undefined : mark.label
-            return (
-              <ChakraSlider.Marker key={index} value={value}>
-                <ChakraSlider.MarkerIndicator />
-                {label}
-              </ChakraSlider.Marker>
-            )
-          })}
-        </ChakraSlider.MarkerGroup>
-      )}
     </ChakraSlider.Root>
+  )
+})
+
+function SliderThumbs(props) {
+  const { value } = props
+  return (
+    <For each={value}>
+      {(_, index) => (
+        <ChakraSlider.Thumb key={index} index={index}>
+          <ChakraSlider.HiddenInput />
+        </ChakraSlider.Thumb>
+      )}
+    </For>
+  )
+}
+
+const SliderMarks = React.forwardRef(function SliderMarks(props, ref) {
+  const { marks } = props
+  if (!_optionalChain([marks, 'optionalAccess', (_6) => _6.length])) return null
+
+  return (
+    <ChakraSlider.MarkerGroup ref={ref}>
+      {marks.map((mark, index) => {
+        const value = typeof mark === 'number' ? mark : mark.value
+        const label = typeof mark === 'number' ? undefined : mark.label
+        return (
+          <ChakraSlider.Marker key={index} value={value}>
+            <ChakraSlider.MarkerIndicator />
+            {label}
+          </ChakraSlider.Marker>
+        )
+      })}
+    </ChakraSlider.MarkerGroup>
   )
 })

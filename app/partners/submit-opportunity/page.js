@@ -1,46 +1,46 @@
-"use client";
-import { useState, useEffect } from "react";
+'use client';
+import { useState, useEffect } from 'react';
 import {
-  Fieldset,
-  Stack,
-  Center,
-  Textarea,
-  Input,
-  Heading,
-  Text,
-  Box,
-} from "@chakra-ui/react";
-import { Field } from "@/components/ui/field";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
+	Fieldset,
+	Stack,
+	Center,
+	Textarea,
+	Input,
+	Heading,
+	Text,
+	Box,
+} from '@chakra-ui/react';
+import { Field } from '@/components/ui/field';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import {
-  NativeSelectField,
-  NativeSelectRoot,
-} from "@/components/ui/native-select";
-import Airtable from "airtable";
-import apiKey from "@/Airtable.configure";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+	NativeSelectField,
+	NativeSelectRoot,
+} from '@/components/ui/native-select';
+import Airtable from 'airtable';
+import apiKey from '@/Airtable.configure';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const airtable = new Airtable({ apiKey });
-const base = airtable.base("app1V5WXWoHT2QGTu");
+const base = airtable.base('app1V5WXWoHT2QGTu');
 
 const opportunitySchema = z.object({
-  Partner: z.string().nonempty("Required."),
-  OpportunityType: z.string().nonempty("Required."),
-  EventDateTime: z.string().nonempty("Required."),
-  Title: z.string().nonempty("Required."),
-  URL: z.string().url("Invalid URL.").nonempty("Required."),
-  Description: z
-    .string()
-    .nonempty("Required.")
-    .min(10, "Description must be at least 10 characters."),
-  StartDate: z.string().optional(),
-  EndDate: z.string().nonempty("Required."),
-  Verify: z.literal(true, {
-    errorMap: () => ({ message: "Required." }),
-  }),
+	Partner: z.string().nonempty('Required.'),
+	OpportunityType: z.string().nonempty('Required.'),
+	EventDateTime: z.string().nonempty('Required.'),
+	Title: z.string().nonempty('Required.'),
+	URL: z.string().url('Invalid URL.').nonempty('Required.'),
+	Description: z
+		.string()
+		.nonempty('Required.')
+		.min(10, 'Description must be at least 10 characters.'),
+	StartDate: z.string().optional(),
+	EndDate: z.string().nonempty('Required.'),
+	Verify: z.literal(true, {
+		errorMap: () => ({ message: 'Required.' }),
+	}),
 });
 
 export default function SubmitOpportunity() {

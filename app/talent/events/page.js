@@ -1,5 +1,5 @@
 "use client";
-
+import { EventModal } from "@/components/Events/modal";
 import { useState, useEffect } from "react";
 import EventItem from "@/components/EventItem";
 import {
@@ -7,7 +7,6 @@ import {
   Text,
   Input,
   Box,
-  Container,
   Center,
   IconButton,
   Icon,
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import CalendarSvg from "@/components/CalendarSvg";
 import ListSvg from "@/components/ListSvg";
 import Calendar from "react-calendar";
+import { isSameDay } from "date-fns";
 import "react-calendar/dist/Calendar.css";
 
 export default function Events() {
@@ -23,13 +23,20 @@ export default function Events() {
   const [hosts, setHosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedHost, setSelectedHost] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [open, setOpen] = useState(false);
 
-  // State to store the selected date
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const onOpenModal = () => setOpen(true);
+  const onCloseModal = () => setOpen(false);
 
   //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
   const [listSelected, setListSelected] = useState(false);
+
+  //State to controll date input
+  const [inputDate, setInputDate] = useState("");
 
   // Function to update the state when a date is selected
   const handleDateChange = (date) => {
@@ -45,6 +52,29 @@ export default function Events() {
 
   const AIRTABLE_API_KEY = process.env.NEXT_PUBLIC_AIRTABLE_API_KEY;
   const BASE_ID = process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
+
+  const fetchEvents = async (url, options = {}) => {
+    try {
+      const headers = {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
+
+      const response = await fetch(url, { ...options, headers });
+      if (!response.ok) {
+        throw new Error(
+          `Fetch failed. ${response.status} ${response.statusText}`
+        );
+      }
+
+      let data = await response.json();
+      return [data, null];
+    } catch (error) {
+      console.error(error.message);
+      return [null, error];
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -76,7 +106,7 @@ export default function Events() {
             EventLocation: record.fields["Event Location "],
             EventHost:
               record.fields["Host (Link from Partners)"]?.[0] || "Unknown",
-            EventURL: record.fields["Event URL"],
+            EventURL: record.fields["Event URL "],
           }))
         );
 
@@ -120,7 +150,61 @@ export default function Events() {
     }
 
     fetchData();
+    fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`).then(
+      ([data, error]) => {
+        if (error) {
+          console.error("Error fetching events:", error);
+        }
+      }
+    );
   }, []);
+
+  const getFilteredEvents = () => {
+    let filteredEvents = [...events];
+    if (selectedDate) {
+      filteredEvents = filteredEvents.filter((event) => {
+        const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
+        // Timezone adjustment to guarantee local time
+        eventDateObj.setMinutes(
+          eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
+        );
+
+        const isSameDay = selectedDate.getDate() === eventDateObj.getDate();
+        const isSameMonth = selectedDate.getMonth() === eventDateObj.getMonth();
+        const isSameYear =
+          selectedDate.getFullYear() === eventDateObj.getFullYear();
+
+        if (isSameDay && isSameMonth && isSameYear) return true;
+      });
+    }
+
+    if (inputDate.length) {
+      filteredEvents = filteredEvents.filter((e) => {
+        return isSameDay(new Date(e.EventDate), new Date(inputDate));
+      });
+    }
+
+    if (selectedHost.length && selectedHost !== "All") {
+      filteredEvents = filteredEvents.filter((event) => {
+        return event.EventHost === selectedHost;
+      });
+    }
+
+    if (searchValue.length) {
+      filteredEvents = filteredEvents.filter((event) => {
+        return event.EventName.toLowerCase().includes(
+          searchValue.toLowerCase()
+        );
+      });
+    }
+
+    return filteredEvents;
+  };
+
+  const onAttendClick = (event) => {
+    setSelectedEvent(event);
+    setOpen(true);
+  };
 
   return (
     <Flex
@@ -129,7 +213,8 @@ export default function Events() {
       justify="flex-start"
       align="center"
       direction="column"
-      pt={24}
+      py={24}
+      gap={12}
       fontFamily="var(--font-mulish)"
     >
       <Box mb={8} textAlign="center" pt={8}>
@@ -149,7 +234,7 @@ export default function Events() {
       </Box>
 
       {/* Search and Filter Section */}
-      <Box width="100%" maxW="600px">
+      <Box width="350px" maxW="600px">
         {/* Search Input */}
         <Box mb={6} position="relative" textAlign="center">
           <Input
@@ -189,9 +274,41 @@ export default function Events() {
             </Box>
           )}
         </Box>
-        {/* Host Filter */}
-        <Flex direction="column" align="center">
-          <Box width="200px" textAlign="left">
+        <Flex direction="row" align="center" justifyContent="center" gap="10px">
+          {listSelected && (
+            <>
+              <Box width="200px" textAlign="left">
+                <Text
+                  fontSize="14px"
+                  fontWeight="medium"
+                  mb={2}
+                  color="gray.700"
+                >
+                  Date
+                </Text>
+                <Input
+                  type="date"
+                  size="md"
+                  borderRadius="md"
+                  bg="white"
+                  border="1px solid"
+                  borderColor="gray.300"
+                  p={2}
+                  width="100%"
+                  color="black"
+                  _hover={{ borderColor: "gray.400" }}
+                  _focus={{
+                    borderColor: "blue.500",
+                    boxShadow: "0 0 0 1px blue.500",
+                  }}
+                  value={inputDate}
+                  onChange={(e) => setInputDate(e.target.value)}
+                />
+              </Box>
+            </>
+          )}
+          {/* Host Filter */}
+          <Box width="350px" textAlign="left">
             <Text fontSize="14px" fontWeight="medium" mb={2} color="gray.700">
               Host
             </Text>
@@ -241,14 +358,23 @@ export default function Events() {
         </Flex>
         <Center>
           {/* Calendar component with onChange handler */}
-          <Calendar onChange={handleDateChange} value={selectedDate} />
+          {calendarSelected && (
+            <Calendar onChange={handleDateChange} value={selectedDate} />
+          )}
         </Center>
       </Box>
 
       {/* Event Items */}
-      {events.map((event) => (
-        <EventItem key={event.id} event={event} />
-      ))}
+      <div className="flex flex-col justify-center items-center gap-2">
+        {getFilteredEvents().map((event) => (
+          <EventItem
+            key={event.id}
+            event={event}
+            onAttendClick={() => onAttendClick(event)}
+          />
+        ))}
+      </div>
+      <EventModal open={open} onClose={onCloseModal} event={selectedEvent} />
     </Flex>
   );
 }
