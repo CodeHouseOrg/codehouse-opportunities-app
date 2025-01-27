@@ -1,5 +1,5 @@
 "use client";
-
+import { EventModal } from "@/components/Events/modal";
 import { useState, useEffect } from "react";
 import EventItem from "@/components/EventItem";
 import {
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import CalendarSvg from "@/components/CalendarSvg";
 import ListSvg from "@/components/ListSvg";
 import Calendar from "react-calendar";
+import { isSameDay } from "date-fns";
 import "react-calendar/dist/Calendar.css";
 
 export default function Events() {
@@ -25,6 +26,10 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedHost, setSelectedHost] = useState("");
+   const [open, setOpen] = useState(false);
+  
+    const onOpenModal = () => setOpen(true);
+    const onCloseModal = () => setOpen(false);
 
   //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
@@ -360,6 +365,7 @@ export default function Events() {
           <EventItem key={event.id} event={event} />
         ))}
       </div>
+      <EventModal open={open} onClose={onCloseModal}/>
     </Flex>
   );
 }
