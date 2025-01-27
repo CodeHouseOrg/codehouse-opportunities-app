@@ -2,7 +2,7 @@
 
 import { Box, Text, Button, Flex } from "@chakra-ui/react";
 
-export default function EventItem({ event,openModal }) {
+export default function EventItem({ event, onAttendClick }) {
   const startDate = event.EventDate ? new Date(event.EventDate) : null;
   
   if (startDate instanceof Date) {
@@ -88,6 +88,7 @@ export default function EventItem({ event,openModal }) {
         ml={4}
         borderRadius="sm"
         _hover={{ bg: "gray.700" }}
+        onClick={onAttendClick}
       >
         Attend
       </Button>

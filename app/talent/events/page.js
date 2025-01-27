@@ -7,7 +7,6 @@ import {
   Text,
   Input,
   Box,
-  Container,
   Center,
   IconButton,
   Icon,
@@ -26,10 +25,11 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedHost, setSelectedHost] = useState("");
-   const [open, setOpen] = useState(false);
-  
-    const onOpenModal = () => setOpen(true);
-    const onCloseModal = () => setOpen(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const onOpenModal = () => setOpen(true);
+  const onCloseModal = () => setOpen(false);
 
   //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
@@ -106,7 +106,7 @@ export default function Events() {
             EventLocation: record.fields["Event Location "],
             EventHost:
               record.fields["Host (Link from Partners)"]?.[0] || "Unknown",
-            EventURL: record.fields["Event URL"],
+            EventURL: record.fields["Event URL "],
           }))
         );
 
@@ -179,7 +179,7 @@ export default function Events() {
     }
 
     if (inputDate.length) {
-      filteredEvents = filteredEvents.filter(e => {
+      filteredEvents = filteredEvents.filter((e) => {
         return isSameDay(new Date(e.EventDate), new Date(inputDate));
       });
     }
@@ -199,6 +199,11 @@ export default function Events() {
     }
 
     return filteredEvents;
+  };
+
+  const onAttendClick = (event) => {
+    setSelectedEvent(event);
+    setOpen(true);
   };
 
   return (
@@ -362,10 +367,14 @@ export default function Events() {
       {/* Event Items */}
       <div className="flex flex-col justify-center items-center gap-2">
         {getFilteredEvents().map((event) => (
-          <EventItem key={event.id} event={event} />
+          <EventItem
+            key={event.id}
+            event={event}
+            onAttendClick={() => onAttendClick(event)}
+          />
         ))}
       </div>
-      <EventModal open={open} onClose={onCloseModal}/>
+      <EventModal open={open} onClose={onCloseModal} event={selectedEvent} />
     </Flex>
   );
 }
