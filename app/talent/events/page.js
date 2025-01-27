@@ -380,7 +380,8 @@ export default function Events() {
               value={selectedDate}
               tileClassName={({ date, view }) =>
                 view === "month" &&
-                !!selectedDate && date.toDateString() === new Date(selectedDate).toDateString()
+                !!selectedDate &&
+                date.toDateString() === new Date(selectedDate).toDateString()
                   ? "selected-circle"
                   : null
               }
@@ -408,9 +409,19 @@ export default function Events() {
                 (currentPage - 1) * calendarItemsPerPage,
                 currentPage * calendarItemsPerPage
               )
-              .map((event) => <EventItem key={event.id} event={event} />)
+              .map((event) => (
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  onAttendClick={() => onAttendClick(event)}
+                />
+              ))
           : paginatedEvents.map((event) => (
-              <EventItem key={event.id} event={event} />
+              <EventItem
+                key={event.id}
+                event={event}
+                onAttendClick={() => onAttendClick(event)}
+              />
             ))}
       </div>
 
@@ -449,6 +460,7 @@ export default function Events() {
           Next
         </Button>
       </Flex>
+      <EventModal open={open} onClose={onCloseModal} event={selectedEvent} />
     </Flex>
   );
 }
