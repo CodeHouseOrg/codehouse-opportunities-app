@@ -44,173 +44,170 @@ const opportunitySchema = z.object({
 });
 
 export default function SubmitOpportunity() {
-	const [partnerItems, setPartnerItems] = useState([]);
-	const [oppType, setOppType] = useState([]);
+  const [partnerItems, setPartnerItems] = useState([]);
+  const [oppType, setOppType] = useState([]);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm({
-		resolver: zodResolver(opportunitySchema),
-		mode: 'onSubmit',
-	});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(opportunitySchema),
+    mode: "onSubmit",
+  });
 
-	useEffect(() => {
-		const fetchPartners = () => {
-			base('Opportunities')
-				.select()
-				.eachPage((records, fetchNextPage) => {
-					setPartnerItems((prev) => [
-						...prev,
-						...records
-							.filter((record) => record.fields['Opportunity Name'])
-							.map((record) => record.fields['Opportunity Name']),
-					]);
-					setOppType((prev) => {
-						const newItems = records
-							.filter((record) => record.fields['Opportunity Type'])
-							.map((record) => record.fields['Opportunity Type'][0]);
+  useEffect(() => {
+    const fetchOpportunities = () => {
+      base("Opportunities")
+        .select()
+        .eachPage((records, fetchNextPage) => {
+          setOppType((prev) => {
+            const newItems = records
+              .filter((record) => record.fields["Opportunity Type"])
+              .map((record) => record.fields["Opportunity Type"][0]);
 
-						return Array.from(new Set([...prev, ...newItems]));
-					});
-					fetchNextPage();
-				});
-		};
-		fetchPartners();
-	}, []);
+            return Array.from(new Set([...prev, ...newItems]));
+          });
 
-	const onSubmit = (data) => {
-		console.log('Form Data:', data);
-	};
+          fetchNextPage();
+        });
+    };
 
-	return (
-		<Fieldset.Root
-			pt='120px'
-			pb='274px'>
-			<Stack
-				textAlign='center'
-				align='center'>
-				<Heading size='5xl'>Submit Opportunities</Heading>
-				<Box
-					w='1/3'
-					textAlign='center'>
-					<Heading>
-						Highlight opportunities you want to share with our student network.
-					</Heading>
-				</Box>
-			</Stack>
+    const fetchPartnerSelectItems = async () => {
+      const partners = await base('Partners').select().all();
+      setPartnerItems(partners.map(p => p.fields['Partner Name']))
+    }
 
-			<Center>
-				<Fieldset.Content
-					w='1/2'
-					align='center'
-					px='4rem'>
-					<Field label='Partner*'>
-						<NativeSelectRoot>
-							<NativeSelectField
-								{...register('Partner')}
-								items={partnerItems}
-							/>
-						</NativeSelectRoot>
-						{errors.Partner && (
-							<Text color='red.500'>{errors.Partner.message}</Text>
-						)}
-					</Field>
+    fetchOpportunities();
+    fetchPartnerSelectItems();
+  }, []);
 
-					<Field label='Opportunity Type*'>
-						<NativeSelectRoot>
-							<NativeSelectField
-								{...register('OpportunityType')}
-								items={oppType}
-							/>
-						</NativeSelectRoot>
-						{errors.OpportunityType && (
-							<Text color='red.500'>{errors.OpportunityType.message}</Text>
-						)}
-					</Field>
+  const onSubmit = async (data) => {
+    try {
+      const newRecord = {
+        fields: {
+          Partner: data.Partner,
+          "Opportunity Type": data.OpportunityType,
+          "Event DateTime": data.EventDateTime,
+          Title: data.Title,
+          URL: data.URL,
+          Description: data.Description,
+          "Start Date": data.StartDate || undefined,
+          "End Date": data.EndDate,
+          Verify: data.Verify,
+        },
+      };
 
-					<Field label='Time and Date of Event*'>
-						<Input
-							{...register('EventDateTime')}
-							placeholder='12/1/24'
-						/>
-						{errors.EventDateTime && (
-							<Text color='red.500'>{errors.EventDateTime.message}</Text>
-						)}
-					</Field>
+      base("Opportunities").create(newRecord);
+    } catch (error) {
+      console.error("Error submitting opportunity:", error);
+    }
+  };
 
-					<Field label='Title of Opportunity*'>
-						<Input
-							{...register('Title')}
-							placeholder='abc.co/jobs'
-						/>
-						{errors.Title && (
-							<Text color='red.500'>{errors.Title.message}</Text>
-						)}
-					</Field>
+  return (
+    <Fieldset.Root pt="120px" pb="274px">
+      <Stack textAlign="center" align="center">
+        <Heading size="5xl">Submit Opportunities</Heading>
+        <Box w="1/3" textAlign="center">
+          <Heading>
+            Highlight opportunities you want to share with our student network.
+          </Heading>
+        </Box>
+      </Stack>
 
-					<Field label='Opportunity URL*'>
-						<Input
-							{...register('URL')}
-							placeholder='abc.co'
-						/>
-						{errors.URL && <Text color='red.500'>{errors.URL.message}</Text>}
-					</Field>
+      <Center>
+        <Fieldset.Content w="1/2" align="center" px="4rem">
+          <Field label="Partner*" pb="3">
+            <NativeSelectRoot>
+              <NativeSelectField
+                {...register("Partner")}
+                items={partnerItems}
+              />
+            </NativeSelectRoot>
+            {errors.Partner && (
+              <Text color="red.500">{errors.Partner.message}</Text>
+            )}
+          </Field>
 
-					<Field label='Opportunity Description*'>
-						<Textarea
-							{...register('Description')}
-							placeholder="We're Hiring!"
-						/>
-						{errors.Description && (
-							<Text color='red.500'>{errors.Description.message}</Text>
-						)}
-					</Field>
+          <Field label="Opportunity Type*" pb="3">
+            <NativeSelectRoot>
+              <NativeSelectField
+                {...register("OpportunityType")}
+                items={oppType}
+              />
+            </NativeSelectRoot>
+            {errors.OpportunityType && (
+              <Text color="red.500">{errors.OpportunityType.message}</Text>
+            )}
+          </Field>
 
-					<Stack direction='row'>
-						<Field label='Start Date'>
-							<Input
-								type='date'
-								{...register('StartDate')}
-							/>
-						</Field>
-						<Field label='End Date'>
-							<Input
-								type='date'
-								{...register('EndDate')}
-							/>
-							{errors.EndDate && (
-								<Text color='red.500'>{errors.EndDate.message}</Text>
-							)}
-						</Field>
-					</Stack>
+          <Field label="Time and Date of Event*" pb="3">
+            <Input {...register("EventDateTime")} placeholder="12/1/24" />
+            {errors.EventDateTime && (
+              <Text color="red.500">{errors.EventDateTime.message}</Text>
+            )}
+          </Field>
 
-					<label className='self-start text-left'>
-						<input
-							className='mr-2'
-							type='checkbox'
-							{...register('Verify')}
-						/>
-						I verify the responses above are correct.*
-						<br />
-						<span className='text-sm text-gray-500'>
-							By checking this box you certify the accuracy of your submission.
-						</span>
-					</label>
-					{errors.Verify && (
-						<Text color='red.500'>{errors.Verify.message}</Text>
-					)}
+          <Field label="Title of Opportunity*" pb="3">
+            <Input {...register("Title")} placeholder="abc.co/jobs" />
+            {errors.Title && (
+              <Text color="red.500">{errors.Title.message}</Text>
+            )}
+          </Field>
 
-					<Button
-						type='submit'
-						bg='black'
-						color='white'
-						onClick={handleSubmit(onSubmit)}>
-						Submit
-					</Button>
-				</Fieldset.Content>
-			</Center>
-		</Fieldset.Root>
-	);
+          <Field label="Opportunity URL*" pb="3">
+            <Input {...register("URL")} placeholder="abc.co" />
+            {errors.URL && <Text color="red.500">{errors.URL.message}</Text>}
+          </Field>
+
+          <Field label="Opportunity Description*" pb="3">
+            <Textarea
+              {...register("Description")}
+              placeholder="We're Hiring!"
+            />
+            {errors.Description && (
+              <Text color="red.500">{errors.Description.message}</Text>
+            )}
+          </Field>
+
+          <Stack direction="row" pb="3">
+            <Field label="Start Date">
+              <Input type="date" {...register("StartDate")} />
+            </Field>
+            <Field label="End Date">
+              <Input type="date" {...register("EndDate")} />
+              {errors.EndDate && (
+                <Text color="red.500">{errors.EndDate.message}</Text>
+              )}
+            </Field>
+          </Stack>
+
+          <label className="self-start text-left">
+            <input
+              type="checkbox"
+              className="mr-2 bg-background"
+              {...register("Verify")}
+            />
+            I verify the responses above are correct.*
+            <br />
+            <span className="text-gray-500 text-sm">
+              By checking this box you certify the accuracy of your submission.
+            </span>
+          </label>
+          {errors.Verify && (
+            <Text color="red.500">{errors.Verify.message}</Text>
+          )}
+
+          <Button
+            type="submit"
+            bg="primaryBlack"
+            color="primaryWhite"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Submit
+          </Button>
+        </Fieldset.Content>
+      </Center>
+    </Fieldset.Root>
+  );
 }
