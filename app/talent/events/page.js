@@ -31,6 +31,11 @@ export default function Events() {
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+  const calendarItemsPerPage = 2;
+
   //State to toggle color of List and Calendar
   const [calendarSelected, setCalendarSelected] = useState(true);
   const [listSelected, setListSelected] = useState(false);
@@ -201,6 +206,18 @@ export default function Events() {
     return filteredEvents;
   };
 
+  const filteredEvents = getFilteredEvents();
+
+  // Pagination Logic
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedEvents = calendarSelected
+    ? filteredEvents.slice(0, calendarItemsPerPage)
+    : filteredEvents.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
+
   const onAttendClick = (event) => {
     setSelectedEvent(event);
     setOpen(true);
@@ -357,24 +374,81 @@ export default function Events() {
           </IconButton>
         </Flex>
         <Center>
-          {/* Calendar component with onChange handler */}
           {calendarSelected && (
-            <Calendar onChange={handleDateChange} value={selectedDate} />
+            <Calendar
+              onChange={handleDateChange}
+              value={selectedDate}
+              tileClassName={({ date, view }) =>
+                view === "month" &&
+                !!selectedDate && date.toDateString() === new Date(selectedDate).toDateString()
+                  ? "selected-circle"
+                  : null
+              }
+            />
           )}
+
+          {/* Add inline styles to ensure circle */}
+          <style jsx global>{`
+            .react-calendar__tile.selected-circle {
+              border-radius: 50% !important; /* Make it a true circle */
+              height: 50px !important; /* Adjust size */
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: auto;
+            }
+          `}</style>
         </Center>
       </Box>
-
-      {/* Event Items */}
       <div className="flex flex-col justify-center items-center gap-2">
-        {getFilteredEvents().map((event) => (
-          <EventItem
-            key={event.id}
-            event={event}
-            onAttendClick={() => onAttendClick(event)}
-          />
-        ))}
+        {/* Render paginated events */}
+        {calendarSelected
+          ? filteredEvents
+              .slice(
+                (currentPage - 1) * calendarItemsPerPage,
+                currentPage * calendarItemsPerPage
+              )
+              .map((event) => <EventItem key={event.id} event={event} />)
+          : paginatedEvents.map((event) => (
+              <EventItem key={event.id} event={event} />
+            ))}
       </div>
-      <EventModal open={open} onClose={onCloseModal} event={selectedEvent} />
+
+      {/* Unified Pagination for both views */}
+      <Flex justify="center" mt={4}>
+        <Button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Text mx={4}>
+          Page {currentPage} of{" "}
+          {calendarSelected
+            ? Math.ceil(events.length / calendarItemsPerPage)
+            : totalPages}
+        </Text>
+        <Button
+          onClick={() =>
+            setCurrentPage((prev) =>
+              Math.min(
+                prev + 1,
+                calendarSelected
+                  ? Math.ceil(events.length / calendarItemsPerPage)
+                  : totalPages
+              )
+            )
+          }
+          disabled={
+            currentPage ===
+            (calendarSelected
+              ? Math.ceil(events.length / calendarItemsPerPage)
+              : totalPages)
+          }
+        >
+          Next
+        </Button>
+      </Flex>
     </Flex>
   );
 }
