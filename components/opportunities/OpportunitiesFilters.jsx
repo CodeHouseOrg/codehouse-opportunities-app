@@ -1,32 +1,39 @@
 "use client";
-import { Fieldset, Input } from "@chakra-ui/react"
-import { Field } from "@/components/ui/field"
+import { createListCollection, Fieldset, Input } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field";
 import {
   SelectContent,
   SelectItem,
   SelectRoot,
   SelectTrigger,
   SelectValueText,
-} from "@/components/ui/select"
-import { useState } from "react";
+} from "@/components/ui/select";
 
-const OpportunitiesFilter = () => {
-  const [searchValue, setSearchValue] = useState("");
-  const items = [
-    { value: "option1", label: "Option 1" },
-    { value: "option2", label: "Option 2" },
-    { value: "option3", label: "Option 3" },
-  ];
+const OpportunitiesFilter = ({
+  partners,
+  oppTypes,
+  onSearchChange,
+  onPartnerSelect,
+  onOppTypeSelect,
+}) => {
+  console.log("🚀 ~ partners:", partners)
+  const partnerItems = createListCollection({
+    items: partners.map((p) => ({ label: p.name, value: p.id[0] })),
+  });
+  const oppItems = createListCollection({
+    items: oppTypes.map((o) => ({ label: o, value: o })),
+  });
 
   return (
     <Fieldset.Root style={{ maxWidth: "500px", margin: "0 auto" }}>
-      <Fieldset.Content style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <Fieldset.Content
+        style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+      >
         <Field style={{ display: "block", position: "relative" }}>
           <div style={{ position: "relative", width: "100%" }}>
             <Input
               name="name"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+              onChange={onSearchChange}
               placeholder="Search by Opportunity Name"
               style={{
                 width: "100%",
@@ -36,24 +43,6 @@ const OpportunitiesFilter = () => {
                 fontSize: "14px",
               }}
             />
-            {searchValue && (
-              <button
-                onClick={() => setSearchValue("")}
-                style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "25px",
-                  color: "black",
-                }}
-              >
-                ×
-              </button>
-            )}
           </div>
         </Field>
 
@@ -65,7 +54,10 @@ const OpportunitiesFilter = () => {
           }}
         >
           <Field label="Partner" style={{ flex: 1 }}>
-            <SelectRoot>
+            <SelectRoot
+              collection={partnerItems}
+              onValueChange={onPartnerSelect}
+            >
               <SelectTrigger
                 style={{
                   display: "flex",
@@ -81,8 +73,8 @@ const OpportunitiesFilter = () => {
                 <SelectValueText placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                {items.map((item) => (
-                  <SelectItem item={item} key={item.value}>
+                {partnerItems.items.map((item, i) => (
+                  <SelectItem item={item} key={i}>
                     {item.label}
                   </SelectItem>
                 ))}
@@ -91,7 +83,7 @@ const OpportunitiesFilter = () => {
           </Field>
 
           <Field label="Opportunity Type" style={{ flex: 1 }}>
-            <SelectRoot>
+            <SelectRoot collection={oppItems} onValueChange={onOppTypeSelect}>
               <SelectTrigger
                 style={{
                   display: "flex",
@@ -107,7 +99,7 @@ const OpportunitiesFilter = () => {
                 <SelectValueText placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                {items.map((item) => (
+                {oppItems.items.map((item) => (
                   <SelectItem item={item} key={item.value}>
                     {item.label}
                   </SelectItem>
@@ -121,5 +113,3 @@ const OpportunitiesFilter = () => {
   );
 };
 export default OpportunitiesFilter;
-
-
