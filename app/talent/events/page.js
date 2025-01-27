@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import CalendarSvg from "@/components/CalendarSvg";
 import ListSvg from "@/components/ListSvg";
 import Calendar from "react-calendar";
+import { isSameDay } from "date-fns";
 import "react-calendar/dist/Calendar.css";
 
 export default function Events() {
