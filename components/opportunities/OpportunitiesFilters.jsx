@@ -16,9 +16,8 @@ const OpportunitiesFilter = ({
   onPartnerSelect,
   onOppTypeSelect,
 }) => {
-  console.log("🚀 ~ partners:", partners)
   const partnerItems = createListCollection({
-    items: partners.map((p) => ({ label: p.name, value: p.id[0] })),
+    items: partners.map((p) => ({ label: p.name, value: p.id })),
   });
   const oppItems = createListCollection({
     items: oppTypes.map((o) => ({ label: o, value: o })),

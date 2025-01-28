@@ -4,7 +4,6 @@ import ModalButton from "./learnMoreButton";
 import { CloseButton } from "@/components/ui/close-button";
 
 const ModalContainer = ({ onCloseModal, modalData }) => {
-    console.log(modalData)
     return (
         <div>
             <div className="flex justify-end">

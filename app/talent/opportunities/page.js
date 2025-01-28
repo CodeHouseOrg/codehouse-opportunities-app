@@ -55,7 +55,7 @@ export default function Opportunities() {
 
     const fetchPartnerSelectItems = async () => {
       const partners = await base("Partners").select().all();
-      console.log("🚀 ~ fetchPartnerSelectItems ~ partners:", partners)
+      console.log("🚀 ~ fetchPartnerSelectItems ~ partners:", partners);
       setPartners(
         partners.map((p) => ({
           name: p.fields["Partner Name"],
@@ -82,19 +82,21 @@ export default function Opportunities() {
 
     if (searchQ.length) {
       newOpps = newOpps.filter((o) =>
-        o["Opportunity Name"].toLowerCase().includes(searchQ.toLowerCase())
+        o.fields["Opportunity Name"]
+          ?.toLowerCase()
+          .includes(searchQ.toLowerCase())
       );
     }
 
     if (selectedPartner.length) {
-      newOpps = newOpps.filter((o) =>
-        !!o.Partner && o.Partner[0] === selectedPartner
+      newOpps = newOpps.filter(
+        (o) => !!o.fields.Partner && o.fields.Partner[0] === selectedPartner[0]
       );
     }
 
     if (selectedOppType.length) {
       newOpps = newOpps.filter((o) =>
-        o["Opportunity Type"].includes(selectedOppType)
+        o.fields["Opportunity Type"].includes(selectedOppType[0])
       );
     }
 
