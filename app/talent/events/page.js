@@ -344,6 +344,7 @@ export default function Events() {
                 borderColor: "blue.500",
                 boxShadow: "0 0 0 1px blue.500",
               }}
+              onChange={(e) => setSelectedHost(e.currentTarget.value)}
             >
               {loading ? (
                 <option>Loading hosts...</option>
