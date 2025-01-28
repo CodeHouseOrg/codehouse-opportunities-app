@@ -8,10 +8,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   props,
   ref
 ) {
-  const { children, clearable, ...rest } = props;
+  const { children, clearable, border = undefined, ...rest } = props;
   return (
     <ChakraSelect.Control {...rest}>
-      <ChakraSelect.Trigger ref={ref} border="none">
+      <ChakraSelect.Trigger
+        ref={ref}
+        style={{ border: "1px solid #ccc", borderRadius: "10px" }}
+      >
         {children}
       </ChakraSelect.Trigger>
       <ChakraSelect.IndicatorGroup>

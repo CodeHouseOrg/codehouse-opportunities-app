@@ -1,6 +1,14 @@
 "use client";
 
-import { Flex, Grid, createListCollection, GridItem, Heading, Input } from "@chakra-ui/react";
+import {
+  Flex,
+  Grid,
+  createListCollection,
+  GridItem,
+  Heading,
+  Input,
+  HStack,
+} from "@chakra-ui/react";
 import { AIRTABLE, AIRTABLE_API_KEY, useEffectAsync } from "@/app/utils";
 import { useState } from "react";
 import GalleryItem from "@/components/gallery/GalleryItem";
@@ -52,7 +60,11 @@ const createFilterFormula = (filters, query) => {
   for (const field in filters) {
     if (field === codehouseInvolvement) {
       if (filters[field]) {
-        conds.push(filters[field] == "Yes" ? `{${field}} = "Scholar"` : `{${field}} != "Scholar"`);
+        conds.push(
+          filters[field] == "Yes"
+            ? `{${field}} = "Scholar"`
+            : `{${field}} != "Scholar"`
+        );
       }
     } else if (typeof filters[field] === "string") {
       conds.push(`{${field}} = "${filters[field]}"`);
@@ -83,7 +95,11 @@ function Filters({ setFilterData }) {
     { fieldName: "Major", name: "Majors" },
     { fieldName: "Career Interest", name: "Career Paths" },
     { fieldName: "Technical Skills", name: "Skills" },
-    { fieldName: codehouseInvolvement, name: "Codehouse Scholar", manual: true },
+    {
+      fieldName: codehouseInvolvement,
+      name: "Codehouse Scholar",
+      manual: true,
+    },
   ];
   const emptyList = createListCollection({ items: [] });
 
@@ -99,17 +115,22 @@ function Filters({ setFilterData }) {
           },
         }
       ).then((r) => r.json());
-      const students = resp.tables.find((table) => table?.id === "tblZuTMwzYU52he5m");
+      const students = resp.tables.find(
+        (table) => table?.id === "tblZuTMwzYU52he5m"
+      );
       const result = {};
       for (const { fieldName, name, manual } of filters) {
         if (manual) {
           continue;
         }
 
-        const fieldData = students.fields.find((field) => field?.name === fieldName);
+        const fieldData = students.fields.find(
+          (field) => field?.name === fieldName
+        );
         if (
           !fieldData ||
-          (fieldData.type !== "multipleSelects" && fieldData.type !== "singleSelect")
+          (fieldData.type !== "multipleSelects" &&
+            fieldData.type !== "singleSelect")
         ) {
           /* bad */
           throw new Error(`Missing field '${name}'`);
@@ -123,7 +144,10 @@ function Filters({ setFilterData }) {
         };
       }
 
-      result["Graduation Year"] = { items: await createGraduationYearList(), multi: false };
+      result["Graduation Year"] = {
+        items: await createGraduationYearList(),
+        multi: false,
+      };
       result["Codehouse Scholar"] = {
         items: createListCollection({ items: ["Yes", "No"] }),
         multi: false,
@@ -209,11 +233,23 @@ export default function () {
       <Heading size="5xl" fontWeight="bold" pt="6">
         Our Students
       </Heading>
-      <Heading size="4xl" fontWeight="light" textAlign="center" className="w-[40%]" pb="4">
+      <Heading
+        size="4xl"
+        fontWeight="light"
+        textAlign="center"
+        className="w-[40%]"
+        pb="4"
+      >
         View profiles of top talent from the CodeHouse network.
       </Heading>
 
-      <Grid templateRows="0.8fr 1fr 1fr" templateColumns="repeat(3, 1fr)" gapX="6" gapY="2" pb="8">
+      <Grid
+        templateRows="0.8fr 1fr 1fr"
+        templateColumns="repeat(3, 1fr)"
+        gapX="6"
+        gapY="2"
+        pb="8"
+      >
         <GridItem colSpan="3">
           {/* TODO: might be a good idea to debounce this */}
           <Input
@@ -226,24 +262,33 @@ export default function () {
         <Filters setFilterData={setFilterData} />
       </Grid>
 
-      <Grid templateRows="repeat(2, 1fr)" templateColumns="repeat(3, 1fr)" gap="20" pb="16">
-        {students.slice((page - 1) * pageSize, page * pageSize).map((student) => (
-          <Student key={student.id} fields={student.fields} />
-        ))}
+      <Grid
+        templateRows="repeat(2, 1fr)"
+        templateColumns="repeat(3, 1fr)"
+        gap="20"
+        pb="16"
+      >
+        {students
+          .slice((page - 1) * pageSize, page * pageSize)
+          .map((student) => (
+            <Student key={student.id} fields={student.fields} />
+          ))}
       </Grid>
 
       <PaginationRoot
         page={page}
         count={students.length}
         pageSize={pageSize}
-        variant="solid"
+        variant="subtle"
         siblingCount={1}
         onPageChange={(e) => setPage(e.page)}
         size="sm"
       >
-        <PaginationPrevTrigger border="none" />
-        <PaginationItems border="none" />
-        <PaginationNextTrigger border="none" />
+        <HStack gap='0.5rem'>
+          <PaginationPrevTrigger border="none" />
+          <PaginationItems border="none" />
+          <PaginationNextTrigger border="none" />
+        </HStack>
       </PaginationRoot>
     </Flex>
   );

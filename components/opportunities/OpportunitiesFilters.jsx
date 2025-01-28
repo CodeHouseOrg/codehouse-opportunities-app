@@ -63,8 +63,6 @@ const OpportunitiesFilter = ({
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "1px 12px",
-                  border: "1px solid #ccc",
-                  borderRadius: "10px",
                   fontSize: "14px",
                   width: "100%",
                 }}
@@ -89,8 +87,6 @@ const OpportunitiesFilter = ({
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "1px 12px",
-                  border: "1px solid #ccc",
-                  borderRadius: "10px",
                   fontSize: "14px",
                   width: "100%",
                 }}

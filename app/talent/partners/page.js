@@ -150,6 +150,8 @@ export default function Partners() {
         <div className="flex flex-col gap-4 justify-center items-center w-full">
           <Input
             placeholder="Search by Name"
+            borderRadius='10px'
+            border='1px solid #ccc'
             onChange={(e) => setSearchQuery(e.currentTarget.value)}
           />
           <Flex gap="40px">
