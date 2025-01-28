@@ -19,6 +19,7 @@ import {
   PaginationRoot,
   PaginationItems,
 } from "@/components/ui/pagination";
+import { StudentModal } from "@/components/students/StudentModal";
 
 const codehouseInvolvement = "Codehouse Involvement";
 
@@ -203,6 +204,10 @@ export default function () {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [students, setStudents] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+
+  const closeModal = () => setModalOpen(false);
 
   useEffectAsync(async () => {
     try {
@@ -271,7 +276,14 @@ export default function () {
         {students
           .slice((page - 1) * pageSize, page * pageSize)
           .map((student) => (
-            <Student key={student.id} fields={student.fields} />
+            <Student
+              key={student.id}
+              fields={student.fields}
+              onClick={() => {
+                setSelectedStudent(student);
+                setModalOpen(true);
+              }}
+            />
           ))}
       </Grid>
 
@@ -284,12 +296,17 @@ export default function () {
         onPageChange={(e) => setPage(e.page)}
         size="sm"
       >
-        <HStack gap='0.5rem'>
+        <HStack gap="0.5rem">
           <PaginationPrevTrigger border="none" />
           <PaginationItems border="none" />
           <PaginationNextTrigger border="none" />
         </HStack>
       </PaginationRoot>
+      <StudentModal
+        open={modalOpen}
+        onClose={closeModal}
+        student={selectedStudent}
+      />
     </Flex>
   );
 }
