@@ -172,7 +172,7 @@ const PartnerRegistrationForm = () => {
             <Field label="Organization Location*">
               <TextInput
                 {...register("location")}
-                placeholder="New York, NY USA"
+                placeholder="Atlanta, GA USA"
               />
               {errors.location && (
                 <p className="text-red-500">{errors.location.message}</p>
