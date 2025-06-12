@@ -83,7 +83,7 @@ const createFilterFormula = (filters, query) => {
   }
 
   if (query) {
-    conds.push(`FIND("${query}", {First Name} & {Last Name })`);
+    conds.push(`FIND(UPPER("${query}"), UPPER({First Name} & {Last Name }))`);
   }
   return join("AND", conds);
 };

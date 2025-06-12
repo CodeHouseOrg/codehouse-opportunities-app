@@ -97,7 +97,7 @@ export default function Partners() {
     let newPartners = [...partners];
     if (searchQuery.length > 0) {
       newPartners = newPartners.filter((p) => {
-        return p.fields["Partner Name"]?.includes(searchQuery);
+        return p.fields["Partner Name"]?.toLowerCase().includes(searchQuery.toLowerCase());
       });
     }
     if (selectedPartnerType.length > 0) {

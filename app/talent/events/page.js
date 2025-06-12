@@ -104,7 +104,7 @@ export default function Events() {
         setEvents(
           eventsData.records.map((record) => ({
             id: record.id,
-            EventName: record.fields["Event Name"],
+            EventName: record.fields["Event Name"] || "Untitled Event",
             EventDate: record.fields["Event Start Date "],
             EventEndTime: record.fields["Event End Date "],
             EventDescription: record.fields["Event Description "],
@@ -197,7 +197,7 @@ export default function Events() {
 
     if (searchValue.length) {
       filteredEvents = filteredEvents.filter((event) => {
-        return event.EventName.toLowerCase().includes(
+        return event.EventName && event.EventName.toLowerCase().includes(
           searchValue.toLowerCase()
         );
       });
