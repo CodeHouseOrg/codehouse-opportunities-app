@@ -197,7 +197,7 @@ export default function Events() {
 
     if (searchValue.length) {
       filteredEvents = filteredEvents.filter((event) => {
-        return event.EventName && event.EventName.toLowerCase().includes(
+        return event.EventName?.toLowerCase()?.includes(
           searchValue.toLowerCase()
         );
       });
