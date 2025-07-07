@@ -17,10 +17,16 @@ const OpportunitiesFilter = ({
   onOppTypeSelect,
 }) => {
   const partnerItems = createListCollection({
-    items: partners.map((p) => ({ label: p.name, value: p.id })),
+    items: [
+      { label: "All", value: "" },
+      ...partners.map((p) => ({ label: p.name, value: p.id }))
+    ],
   });
   const oppItems = createListCollection({
-    items: oppTypes.map((o) => ({ label: o, value: o })),
+    items: [
+      { label: "All", value: "" },
+      ...oppTypes.map((o) => ({ label: o, value: o }))
+    ],
   });
 
   return (

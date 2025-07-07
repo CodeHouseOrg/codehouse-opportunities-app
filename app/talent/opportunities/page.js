@@ -27,46 +27,46 @@ export default function Opportunities() {
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const result = await fetch(
-          `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/Opportunities`,
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
-            },
-          }
-        );
-        const data = await result.json();
-        if (data && data.records) {
-          console.log("🚀 ~ fetchOpportunities ~ data:", data);
+        const opportunities = await base("Opportunities").select().all();
+        
+        if (opportunities && opportunities.length > 0) {
           const oppSet = new Set();
-          data.records.forEach((r) => {
+          opportunities.forEach((r) => {
             const type = r.fields["Opportunity Type"][0];
             if (!oppSet.has(type)) {
               oppSet.add(type);
             }
           });
           setOppTypes(Array.from(oppSet));
-          setOpportunities(data.records);
+          setOpportunities(opportunities);
         }
       } catch (e) {
-        console.error(e);
+        console.error("FetchOpportunities error:", e);
       }
     };
 
     const fetchPartnerSelectItems = async () => {
-      const partners = await base("Partners").select().all();
-      console.log("🚀 ~ fetchPartnerSelectItems ~ partners:", partners);
-      setPartners(
-        partners.map((p) => ({
-          name: p.fields["Partner Name"],
-          id: p.id,
-        }))
-      );
+      try {
+        const partners = await base("Partners").select().all();
+        setPartners(
+          partners.map((p) => ({
+            name: p.fields["Partner Name"],
+            id: p.id,
+          }))
+        );
+      } catch (e) {
+        console.error("FetchPartnerSelectItems error:", e);
+      }
     };
 
     fetchOpportunities();
     fetchPartnerSelectItems();
   }, []);
+
+  // Reset current page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQ, selectedPartner, selectedOppType]);
 
   const handleModalData = (e) => {
     setIsModalOpen(true);
@@ -79,7 +79,8 @@ export default function Opportunities() {
 
   const getFilteredOpportunities = () => {
     let newOpps = [...opportunities];
-
+    
+    // Filter by search query
     if (searchQ.length) {
       newOpps = newOpps.filter((o) =>
         o.fields["Opportunity Name"]
@@ -88,23 +89,29 @@ export default function Opportunities() {
       );
     }
 
-    if (selectedPartner.length) {
+    // Filter by partner - only apply if not "All" (empty string)
+    if (selectedPartner && selectedPartner !== "") {
       newOpps = newOpps.filter(
-        (o) => !!o.fields.Partner && o.fields.Partner[0] === selectedPartner[0]
+        (o) => !!o.fields.Partner && o.fields.Partner[0] === selectedPartner
       );
     }
 
-    if (selectedOppType.length) {
-      newOpps = newOpps.filter((o) =>
-        o.fields["Opportunity Type"].includes(selectedOppType[0])
-      );
+    // Filter by opportunity type - only apply if not "All" (empty string)
+    if (selectedOppType && selectedOppType !== "") {
+      newOpps = newOpps.filter((o) => {
+        const oppTypes = o.fields["Opportunity Type"];
+        const matches = oppTypes.includes(selectedOppType);
+        
+        return matches;
+      });
     }
 
     return newOpps;
   };
 
-  const totalPages = Math.ceil(opportunities.length / PAGE_SIZE);
-  const displayedItems = getFilteredOpportunities().slice(
+  const filteredOpportunities = getFilteredOpportunities();
+  const totalPages = Math.ceil(filteredOpportunities.length / PAGE_SIZE);
+  const displayedItems = filteredOpportunities.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
@@ -123,8 +130,12 @@ export default function Opportunities() {
         partners={partners}
         oppTypes={oppTypes}
         onSearchChange={(e) => setSearchQ(e.currentTarget.value)}
-        onPartnerSelect={(e) => setSelectedPartner(e.value)}
-        onOppTypeSelect={(e) => setSelectedOppType(e.value)}
+        onPartnerSelect={(e) => {
+          setSelectedPartner(Array.isArray(e.value) ? e.value[0] : e.value);
+        }}
+        onOppTypeSelect={(e) => {
+          setSelectedOppType(Array.isArray(e.value) ? e.value[0] : e.value);
+        }}
       />
       <br />
       <div
@@ -149,7 +160,7 @@ export default function Opportunities() {
         modalData={modalData}
       />
       <OpportunityCardPagination
-        items={opportunities}
+        items={filteredOpportunities}
         totalPages={totalPages}
         currentPage={currentPage}
         onPageChange={(page) => setCurrentPage(page)}
