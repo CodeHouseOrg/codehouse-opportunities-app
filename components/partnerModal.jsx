@@ -48,8 +48,8 @@ export const PartnerModal = ({
   onCloseModal,
   title,
   partnerTypes,
-  tier,
-  involvedInPrograms,
+  // tier,
+  // involvedInPrograms,
   location,
   about,
   website,
@@ -79,11 +79,11 @@ export const PartnerModal = ({
           <h3 style={h3Style}>Partner Type:</h3>
           <p style={pStyle}>{partnerTypes}</p>
 
-          <h3 style={h3Style}>Tier:</h3>
+          {/* <h3 style={h3Style}>Tier:</h3>
           <p style={pStyle}>{tier}</p>
 
           <h3 style={h3Style}>Involved in Programs:</h3>
-          <p style={pStyle}>{involvedInPrograms}</p>
+          <p style={pStyle}>{involvedInPrograms}</p> */}
 
           <h3 style={h3Style}>Location:</h3>
           <p style={pStyle}>{location}</p>

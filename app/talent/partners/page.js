@@ -40,8 +40,6 @@ export default function Partners() {
   const [searchQuery, setSearchQuery] = useState("");
   const [partnerTypes, setPartnerTypes] = useState([]);
   const [selectedPartnerType, setSelectedPartnerType] = useState("");
-  const [partnersInvolved, setInvolved] = useState([]);
-  const [selectedInvolvement, setSelectedInvolvement] = useState("");
   const onOpenModal = () => setPartnerModalOpen(true);
   const onCloseModal = () => setPartnerModalOpen(false);
 
@@ -61,24 +59,17 @@ export default function Partners() {
         if (data && data.records) {
           setPartners(data.records);
           const partnerTypesSet = new Set();
-          const involvedSet = new Set();
           for (const p of data.records) {
             if (!partnerTypesSet.has(p.fields["Partner Type"])) {
               partnerTypesSet.add(p.fields["Partner Type"]);
             }
-            if (!involvedSet.has(p.fields["Is Involved in CodeHouse"])) {
-              involvedSet.add(p.fields["Is Involved in CodeHouse"]);
-            }
           }
-          // console.log("SET:", involvedSet);
+
 
           setPartnerTypes(
             Array.from(partnerTypesSet)
               .filter((p) => !!p && p !== "undefined" && p !== undefined)
               .map((p) => ({ label: p, value: p }))
-          );
-          setInvolved(
-            Array.from(involvedSet).map((p) => ({ label: p, value: p }))
           );
         }
       } catch (e) {
@@ -106,14 +97,6 @@ export default function Partners() {
         return (
           p.fields["Partner Type"]?.toLowerCase() ===
           selectedPartnerType.toLowerCase()
-        );
-      });
-    }
-    if (selectedInvolvement.length > 0) {
-      newPartners = newPartners.filter((p) => {
-        return (
-          p.fields["Is Involved in CodeHouse"]?.toLowerCase() ===
-          selectedInvolvement.toLowerCase()
         );
       });
     }
@@ -173,25 +156,6 @@ export default function Partners() {
                 ))}
               </SelectContent>
             </SelectRoot>
-
-            <SelectRoot
-              collection={createListCollection({ items: partnersInvolved })}
-              size="sm"
-              width="320px"
-              onValueChange={(e) => setSelectedInvolvement(e.value[0])}
-            >
-              <SelectLabel>Involved in CodeHouse Programs</SelectLabel>
-              <SelectTrigger>
-                <SelectValueText placeholder="Yes" />
-              </SelectTrigger>
-              <SelectContent>
-                {partnersInvolved.map((program, i) => (
-                  <SelectItem item={program} key={i} value={program.value}>
-                    {program.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </SelectRoot>
           </Flex>
         </div>
       </section>
@@ -209,10 +173,6 @@ export default function Partners() {
           onCloseModal={onCloseModal}
           title={selectedPartner.fields["Partner Name"]}
           partnerTypes={selectedPartner.fields["Partner Type"]}
-          tier={selectedPartner.fields["Tier"] || "N/A"}
-          involvedInPrograms={
-            selectedPartner.fields["Is Involved in CodeHouse"] || "No"
-          }
           location={selectedPartner.fields["Partner Location"]}
           about={selectedPartner.fields["About"] || "No information available"}
           website={selectedPartner.fields["Partner URL"] || "#"}
