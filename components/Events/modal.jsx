@@ -15,24 +15,24 @@ export const EventModal = ({ open, onClose, event }) => {
         <div className="w-full flex justify-center items-center">
           <h1 className="font-semibold text-3xl">{event.EventName}</h1>
         </div>
-        <div className="w-[60%] flex flex-col items-center w-full gap-4 text-end">
-          <div className="w-full flex justify-between items-center">
-            <p className="font-semibold text-xl">Host:</p>
-            <p>{event.EventHost}</p>
+        <div className="w-[80%] flex flex-col items-start w-full gap-3 text-left">
+          <div className="w-full">
+            <span className="font-semibold text-xl">Host: </span>
+            <span>{event.EventHost}</span>
           </div>
           {event?.EventDate && (
-            <div className="w-full flex justify-between items-center">
-              <p className="font-semibold text-xl">When:</p>
-              <p>{format(new Date(event.EventDate), "MMMM dd, yyyy")}</p>
+            <div className="w-full">
+              <span className="font-semibold text-xl">When: </span>
+              <span>{format(new Date(event.EventDate), "MMMM dd, yyyy")}</span>
             </div>
           )}
-          <div className="w-full flex justify-between items-center">
-            <p className="font-semibold text-xl">Where:</p>
-            <p>{event.EventLocation}</p>
+          <div className="w-full">
+            <span className="font-semibold text-xl">Where: </span>
+            <span>{event.EventLocation}</span>
           </div>
-          <div className="w-full flex justify-between items-center">
-            <p className="font-semibold text-xl">About:</p>
-            <p className="w-[60%]">{event.EventDescription}</p>
+          <div className="w-full">
+            <span className="font-semibold text-xl">About: </span>
+            <span>{event.EventDescription}</span>
           </div>
         </div>
         <Button w="150px" bg="black" color="white" onClick={onAttendClick}>
