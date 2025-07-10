@@ -389,15 +389,28 @@ export default function Events() {
             />
           )}
 
-          {/* Add inline styles to ensure circle */}
+          {/* Calendar custom styles */}
           <style jsx global>{`
+            /* Selected date circle styling */
             .react-calendar__tile.selected-circle {
-              border-radius: 50% !important; /* Make it a true circle */
-              height: 50px !important; /* Adjust size */
+              background: #7f1d1d !important; /* Burgundy for all selected dates */
+              color: white !important;
+              border-radius: 50% !important;
+              height: 50px !important;
               display: flex;
               justify-content: center;
               align-items: center;
               margin: auto;
+            }
+            
+            /* Today's date styling - only applies when NOT selected */
+            .react-calendar__tile--now:not(.selected-circle) {
+              background: #d1d5db !important; /* Darker gray background */
+              color: #333 !important;
+            }
+            
+            .react-calendar__tile--now:not(.selected-circle):enabled:hover {
+              background: #c0c4cc !important; /* Darker gray on hover */
             }
           `}</style>
         </Center>
