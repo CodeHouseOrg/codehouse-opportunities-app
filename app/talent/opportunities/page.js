@@ -138,32 +138,38 @@ export default function Opportunities() {
         }}
       />
       <br />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "24px",
-          padding: "24px",
-          width: "100%",
-          maxWidth: "1200px",
-        }}
-      >
-        <Jobs
-          opportunitiesData={displayedItems}
-          openModal={() => setIsModalOpen(true)}
-          handleModalData={handleModalData}
-        />
-      </div>
+      {filteredOpportunities.length > 0 ? (
+        <>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: "24px",
+              padding: "24px",
+              width: "100%",
+              maxWidth: "1200px",
+            }}
+          >
+            <Jobs
+              opportunitiesData={displayedItems}
+              openModal={() => setIsModalOpen(true)}
+              handleModalData={handleModalData}
+            />
+          </div>
+          <OpportunityCardPagination
+            items={filteredOpportunities}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
+      ) : (
+        <p>No Results Found</p>
+      )}
       <OpportunityModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         modalData={modalData}
-      />
-      <OpportunityCardPagination
-        items={filteredOpportunities}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={(page) => setCurrentPage(page)}
       />
     </Flex>
   );
