@@ -52,7 +52,7 @@ export default function Opportunities() {
           partners.map((p) => ({
             name: p.fields["Partner Name"],
             id: p.id,
-          }))
+          })).sort((a, b) => a.name.localeCompare(b.name))
         );
       } catch (e) {
         console.error("FetchPartnerSelectItems error:", e);
