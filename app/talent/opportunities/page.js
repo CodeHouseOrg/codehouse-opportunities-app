@@ -5,7 +5,7 @@ import { OpportunityModal } from "@/components/opportunities/opportunityCard/opp
 import { Jobs } from "@/components/opportunities/opportunityCard/jobs";
 import OpportunityHeaderContainer from "@/components/opportunities/opportunityHeader/opportunityHeaderContainer";
 import OpportunityCardPagination from "@/components/opportunities/opportunityPagination/opportunityPaginationContianer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Airtable from "airtable";
 import apiKey from "@/Airtable.configure";
 
@@ -18,11 +18,29 @@ export default function Opportunities() {
   const [modalData, setModalData] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [allPartners, setAllPartners] = useState([]);
   const [partners, setPartners] = useState([]);
   const [oppTypes, setOppTypes] = useState([]);
   const [searchQ, setSearchQ] = useState("");
   const [selectedPartner, setSelectedPartner] = useState("");
   const [selectedOppType, setSelectedOppType] = useState("");
+
+  const displayedPartners = useMemo(() => {
+    if (!selectedOppType) {
+      return allPartners;
+    }
+
+    const relevantOpportunityPartnerIds = new Set();
+    opportunities.forEach(opportunity => {
+      if (opportunity.fields["Opportunity Type"] && opportunity.fields["Opportunity Type"].includes(selectedOppType)) {
+        if (opportunity.fields.Partner && opportunity.fields.Partner[0]) {
+          relevantOpportunityPartnerIds.add(opportunity.fields.Partner[0]);
+        }
+      }
+    });
+
+    return allPartners.filter(partner => relevantOpportunityPartnerIds.has(partner.id));
+  }, [selectedOppType, allPartners, opportunities]);
 
   useEffect(() => {
     const fetchOpportunities = async () => {
@@ -47,13 +65,13 @@ export default function Opportunities() {
 
     const fetchPartnerSelectItems = async () => {
       try {
-        const partners = await base("Partners").select().all();
-        setPartners(
-          partners.map((p) => ({
-            name: p.fields["Partner Name"],
-            id: p.id,
-          })).sort((a, b) => a.name.localeCompare(b.name))
-        );
+        const partnersData = await base("Partners").select().all();
+        const mappedPartners = partnersData.map((p) => ({
+          name: p.fields["Partner Name"],
+          id: p.id,
+        })).sort((a, b) => a.name.localeCompare(b.name));
+        setAllPartners(mappedPartners);
+        setPartners(mappedPartners); // Initially set all partners
       } catch (e) {
         console.error("FetchPartnerSelectItems error:", e);
       }
@@ -127,7 +145,7 @@ export default function Opportunities() {
     >
       <OpportunityHeaderContainer />
       <OpportunitiesFilter
-        partners={partners}
+        partners={displayedPartners}
         oppTypes={oppTypes}
         onSearchChange={(e) => setSearchQ(e.currentTarget.value)}
         onPartnerSelect={(e) => {
