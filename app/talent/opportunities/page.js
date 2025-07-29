@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import Airtable from "airtable";
 import apiKey from "@/Airtable.configure";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 9;
 const airtable = new Airtable({ apiKey });
 const base = airtable.base("app1V5WXWoHT2QGTu");
 
