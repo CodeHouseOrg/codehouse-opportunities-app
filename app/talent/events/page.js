@@ -2,6 +2,7 @@
 import { EventModal } from "@/components/Events/modal";
 import { useState, useEffect } from "react";
 import EventItem from "@/components/EventItem";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import {
   Flex,
   Text,
@@ -222,6 +223,10 @@ export default function Events() {
     setSelectedEvent(event);
     setOpen(true);
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Flex

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { PartnerModal } from "@/components/partnerModal";
 import PartnersGrid from "@/components/PartnersGrid";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 import {
   Flex,
@@ -42,6 +43,7 @@ export default function Partners() {
   const [selectedPartnerType, setSelectedPartnerType] = useState("");
   const [partnersInvolved, setInvolved] = useState([]);
   const [selectedInvolvement, setSelectedInvolvement] = useState("");
+  const [loading, setLoading] = useState(true);
   const onOpenModal = () => setPartnerModalOpen(true);
   const onCloseModal = () => setPartnerModalOpen(false);
 
@@ -83,6 +85,8 @@ export default function Partners() {
         }
       } catch (e) {
         console.error(e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPartners();
@@ -119,6 +123,10 @@ export default function Partners() {
     }
     return newPartners;
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Flex

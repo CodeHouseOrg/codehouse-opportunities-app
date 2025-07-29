@@ -6,6 +6,7 @@ import { Jobs } from "@/components/opportunities/opportunityCard/jobs";
 import OpportunityHeaderContainer from "@/components/opportunities/opportunityHeader/opportunityHeaderContainer";
 import OpportunityCardPagination from "@/components/opportunities/opportunityPagination/opportunityPaginationContianer";
 import { useEffect, useState, useMemo } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import Airtable from "airtable";
 import apiKey from "@/Airtable.configure";
 
@@ -23,6 +24,7 @@ export default function Opportunities() {
   const [oppTypes, setOppTypes] = useState([]);
   const [searchQ, setSearchQ] = useState("");
   const [selectedPartner, setSelectedPartner] = useState("");
+  const [loading, setLoading] = useState(true);
   const [selectedOppType, setSelectedOppType] = useState("");
 
   const displayedPartners = useMemo(() => {
@@ -74,6 +76,8 @@ export default function Opportunities() {
         setPartners(mappedPartners); // Initially set all partners
       } catch (e) {
         console.error("FetchPartnerSelectItems error:", e);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -133,6 +137,10 @@ export default function Opportunities() {
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Flex
