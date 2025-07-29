@@ -13,6 +13,8 @@ export const Nav = () => {
       h="96px"
       justify="space-between"
       align="center"
+      bg="white"
+      zIndex="10"
     >
       <Link href="/">
         <Image src="/images/logo.svg" alt="codehouse logo" />
@@ -26,7 +28,7 @@ export const Nav = () => {
           p="0.5rem"
           borderRadius="6px"
         >
-          For Talent
+          For Talent 
         </Link>
         <Link
           as={NextLink}
