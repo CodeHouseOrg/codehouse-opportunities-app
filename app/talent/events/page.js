@@ -182,6 +182,18 @@ export default function Events() {
 
         if (isSameDay && isSameMonth && isSameYear) return true;
       });
+    } else {
+      // if no date is selected, we should show recent events (in the last week) & upcoming events
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      filteredEvents = filteredEvents.filter((event) => {
+        const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
+        eventDateObj.setMinutes(
+          eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
+        );
+        return eventDateObj >= oneWeekAgo || eventDateObj >= new Date();
+      }
+      );
     }
 
     if (inputDate.length) {
@@ -386,8 +398,8 @@ export default function Events() {
               value={selectedDate}
               tileClassName={({ date, view }) =>
                 view === "month" &&
-                !!selectedDate &&
-                date.toDateString() === new Date(selectedDate).toDateString()
+                  !!selectedDate &&
+                  date.toDateString() === new Date(selectedDate).toDateString()
                   ? "selected-circle"
                   : null
               }
@@ -409,26 +421,30 @@ export default function Events() {
       </Box>
       <div className="flex flex-col justify-center items-center gap-2">
         {/* Render paginated events */}
-        {calendarSelected
-          ? filteredEvents
-              .slice(
-                (currentPage - 1) * calendarItemsPerPage,
-                currentPage * calendarItemsPerPage
-              )
-              .map((event) => (
-                <EventItem
-                  key={event.id}
-                  event={event}
-                  onAttendClick={() => onAttendClick(event)}
-                />
-              ))
-          : paginatedEvents.map((event) => (
+        {filteredEvents.length === 0 ? (
+          <Text>No events found. Check back frequently for new updates!</Text>
+        ) : calendarSelected ? (
+          filteredEvents
+            .slice(
+              (currentPage - 1) * calendarItemsPerPage,
+              currentPage * calendarItemsPerPage
+            )
+            .map((event) => (
               <EventItem
                 key={event.id}
                 event={event}
                 onAttendClick={() => onAttendClick(event)}
               />
-            ))}
+            ))
+        ) : (
+          paginatedEvents.map((event) => (
+            <EventItem
+              key={event.id}
+              event={event}
+              onAttendClick={() => onAttendClick(event)}
+            />
+          ))
+        )}
       </div>
 
       {/* Unified Pagination for both views */}
