@@ -251,7 +251,7 @@ export default function Events() {
       </Box>
 
       {/* Search and Filter Section */}
-      <Box width="350px" maxW="600px">
+      <Box width="600px" maxW="800px">
         {/* Search Input */}
         <Box mb={6} position="relative" textAlign="center">
           <Input
@@ -299,8 +299,7 @@ export default function Events() {
                   fontSize="14px"
                   fontWeight="medium"
                   mb={2}
-                  color="gray.700"
-                >
+                  color="gray.700"                >
                   Date
                 </Text>
                 <Input
@@ -377,6 +376,7 @@ export default function Events() {
         <Center>
           {calendarSelected && (
             <Calendar
+              className="large-calendar"
               onChange={handleDateChange}
               value={selectedDate}
               tileClassName={({ date, view }) =>
@@ -391,12 +391,30 @@ export default function Events() {
 
           {/* Calendar custom styles */}
           <style jsx global>{`
+            /* Increase overall calendar size */
+            .react-calendar.large-calendar {
+              width: 60px !important;
+              max-width: 1000vw !important;
+              font-size: 1.05rem !important;
+            }
+
+            .react-calendar.large-calendar .react-calendar__navigation button {
+              padding: 14px 6px !important;
+              font-size: 1.05rem !important;
+            }
+
+            .react-calendar.large-calendar .react-calendar__tile {
+              padding: 18px 6px !important;
+            }
+
             /* Selected date circle styling */
             .react-calendar__tile.selected-circle {
               background: #7f1d1d !important; /* Burgundy for all selected dates */
               color: white !important;
               border-radius: 50% !important;
-              height: 50px !important;
+              height: 60px !important;
+              width: 40px !important;
+              padding: 0 !important; /* avoid extra height from padding */
               display: flex;
               justify-content: center;
               align-items: center;
@@ -407,6 +425,14 @@ export default function Events() {
             .react-calendar__tile--now:not(.selected-circle) {
               background: #d1d5db !important; /* Darker gray background */
               color: #333 !important;
+              border-radius: 50% !important;
+              height: 60px !important;
+              width: 40px !important;
+              padding: 0 !important;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: auto;
             }
             
             .react-calendar__tile--now:not(.selected-circle):enabled:hover {
