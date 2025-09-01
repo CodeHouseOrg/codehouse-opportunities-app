@@ -165,7 +165,18 @@ export default function Events() {
   }, []);
 
   const getFilteredEvents = () => {
-    let filteredEvents = [...events];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let filteredEvents = events.filter((event) => {
+      if (!event.EventDate) return false;
+      const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
+      eventDateObj.setMinutes(
+        eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
+      );
+      return eventDateObj >= today;
+    });
+
     if (selectedDate) {
       filteredEvents = filteredEvents.filter((event) => {
         const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
@@ -417,26 +428,32 @@ export default function Events() {
       </Box>
       <div className="flex flex-col justify-center items-center gap-2">
         {/* Render paginated events */}
-        {calendarSelected
-          ? filteredEvents
-              .slice(
-                (currentPage - 1) * calendarItemsPerPage,
-                currentPage * calendarItemsPerPage
-              )
-              .map((event) => (
-                <EventItem
-                  key={event.id}
-                  event={event}
-                  onAttendClick={() => onAttendClick(event)}
-                />
-              ))
-          : paginatedEvents.map((event) => (
-              <EventItem
-                key={event.id}
-                event={event}
-                onAttendClick={() => onAttendClick(event)}
-              />
-            ))}
+        {filteredEvents.length === 0 ? (
+          <Text>No upcoming events found. Please check back soon!</Text>
+        ) : (
+          <>
+            {calendarSelected
+              ? filteredEvents
+                  .slice(
+                    (currentPage - 1) * calendarItemsPerPage,
+                    currentPage * calendarItemsPerPage
+                  )
+                  .map((event) => (
+                    <EventItem
+                      key={event.id}
+                      event={event}
+                      onAttendClick={() => onAttendClick(event)}
+                    />
+                  ))
+              : paginatedEvents.map((event) => (
+                  <EventItem
+                    key={event.id}
+                    event={event}
+                    onAttendClick={() => onAttendClick(event)}
+                  />
+                ))}
+          </>
+        )}
       </div>
 
       {/* Unified Pagination for both views */}
@@ -450,7 +467,7 @@ export default function Events() {
         <Text mx={4}>
           Page {currentPage} of{" "}
           {calendarSelected
-            ? Math.ceil(events.length / calendarItemsPerPage)
+            ? Math.ceil(filteredEvents.length / calendarItemsPerPage)
             : totalPages}
         </Text>
         <Button
@@ -459,7 +476,7 @@ export default function Events() {
               Math.min(
                 prev + 1,
                 calendarSelected
-                  ? Math.ceil(events.length / calendarItemsPerPage)
+                  ? Math.ceil(filteredEvents.length / calendarItemsPerPage)
                   : totalPages
               )
             )
@@ -467,7 +484,7 @@ export default function Events() {
           disabled={
             currentPage ===
             (calendarSelected
-              ? Math.ceil(events.length / calendarItemsPerPage)
+              ? Math.ceil(filteredEvents.length / calendarItemsPerPage)
               : totalPages)
           }
         >
