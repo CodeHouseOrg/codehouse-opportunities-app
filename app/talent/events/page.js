@@ -86,67 +86,69 @@ export default function Events() {
       try {
         console.log("Fetching events and hosts...");
 
-        // Fetch Events Table
-        const eventsResponse = await fetch(
-          `https://api.airtable.com/v0/${BASE_ID}/Events`,
-          {
-            headers: {
-              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-            },
-          }
-        );
+        // Fetch Events and Partners in parallel
+        const [eventsResponse, partnersResponse] = await Promise.all([
+          fetch(`https://api.airtable.com/v0/${BASE_ID}/Events`, {
+            headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
+          }),
+          fetch(`https://api.airtable.com/v0/${BASE_ID}/Partners`, {
+            headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
+          }),
+        ]);
 
         if (!eventsResponse.ok) {
           throw new Error(`Error fetching events: ${eventsResponse.status}`);
         }
-
-        const eventsData = await eventsResponse.json();
-        setEvents(
-          eventsData.records.map((record) => ({
-            id: record.id,
-            EventName: record.fields["Event Name"] || "Untitled Event",
-            EventDate: record.fields["Event Start Date "],
-            EventEndTime: record.fields["Event End Date "],
-            EventDescription: record.fields["Event Description "],
-            EventLocation: record.fields["Event Location "],
-            EventHost:
-              record.fields["Host (Link from Partners)"]?.[0] || "Unknown",
-            EventURL: record.fields["Event URL "],
-          }))
-        );
-
-        // Fetch Hosts
-        const partnersResponse = await fetch(
-          `https://api.airtable.com/v0/${BASE_ID}/Partners`,
-          {
-            headers: {
-              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-            },
-          }
-        );
-
         if (!partnersResponse.ok) {
           throw new Error(
             `Error fetching partners: ${partnersResponse.status}`
           );
         }
 
+        const eventsData = await eventsResponse.json();
         const partnersData = await partnersResponse.json();
 
+        // Create partner map
         const partnerMap = {};
         partnersData.records.forEach((record) => {
           partnerMap[record.id] = record.fields["Partner Name"];
         });
 
-        setHosts(Object.values(partnerMap));
+        // Create a full list of events with host names
+        const allEvents = eventsData.records.map((record) => ({
+          id: record.id,
+          EventName: record.fields["Event Name"] || "Untitled Event",
+          EventDate: record.fields["Event Start Date "],
+          EventEndTime: record.fields["Event End Date "],
+          EventDescription: record.fields["Event Description "],
+          EventLocation: record.fields["Event Location "],
+          EventHost:
+            partnerMap[record.fields["Host (Link from Partners)"]?.[0]] ||
+            "Unknown Host",
+          EventURL: record.fields["Event URL "],
+        }));
 
-        // Map Event Hosts
-        setEvents((prevEvents) =>
-          prevEvents.map((event) => ({
-            ...event,
-            EventHost: partnerMap[event.EventHost] || "Unknown Host",
-          }))
-        );
+        // Filter for upcoming events to determine which hosts to show
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const upcomingEvents = allEvents.filter((event) => {
+          if (!event.EventDate) return false;
+          const eventDateObj = new Date(event.EventDate + "T00:00:00Z");
+          eventDateObj.setMinutes(
+            eventDateObj.getMinutes() + eventDateObj.getTimezoneOffset()
+          );
+          return eventDateObj >= today;
+        });
+
+        // Get unique, sorted list of hosts from upcoming events
+        const hostsWithUpcomingEvents = [
+          ...new Set(upcomingEvents.map((e) => e.EventHost)),
+        ].filter((host) => host !== "Unknown Host");
+        hostsWithUpcomingEvents.sort();
+
+        setHosts(hostsWithUpcomingEvents);
+        setEvents(allEvents);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -155,13 +157,6 @@ export default function Events() {
     }
 
     fetchData();
-    fetchEvents(`https://api.airtable.com/v0/${BASE_ID}/Events`).then(
-      ([data, error]) => {
-        if (error) {
-          console.error("Error fetching events:", error);
-        }
-      }
-    );
   }, []);
 
   const getFilteredEvents = () => {
@@ -392,8 +387,8 @@ export default function Events() {
               value={selectedDate}
               tileClassName={({ date, view }) =>
                 view === "month" &&
-                !!selectedDate &&
-                date.toDateString() === new Date(selectedDate).toDateString()
+                  !!selectedDate &&
+                  date.toDateString() === new Date(selectedDate).toDateString()
                   ? "selected-circle"
                   : null
               }
@@ -434,24 +429,24 @@ export default function Events() {
           <>
             {calendarSelected
               ? filteredEvents
-                  .slice(
-                    (currentPage - 1) * calendarItemsPerPage,
-                    currentPage * calendarItemsPerPage
-                  )
-                  .map((event) => (
-                    <EventItem
-                      key={event.id}
-                      event={event}
-                      onAttendClick={() => onAttendClick(event)}
-                    />
-                  ))
-              : paginatedEvents.map((event) => (
+                .slice(
+                  (currentPage - 1) * calendarItemsPerPage,
+                  currentPage * calendarItemsPerPage
+                )
+                .map((event) => (
                   <EventItem
                     key={event.id}
                     event={event}
                     onAttendClick={() => onAttendClick(event)}
                   />
-                ))}
+                ))
+              : paginatedEvents.map((event) => (
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  onAttendClick={() => onAttendClick(event)}
+                />
+              ))}
           </>
         )}
       </div>
