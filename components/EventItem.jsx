@@ -90,7 +90,7 @@ export default function EventItem({ event, onAttendClick }) {
         _hover={{ bg: "gray.700" }}
         onClick={onAttendClick}
       >
-        Attend
+        More Info
       </Button>
     </Box>
   );
