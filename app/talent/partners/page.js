@@ -39,7 +39,7 @@ export default function Partners() {
   const [isPartnerModalOpen, setPartnerModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [partnerTypes, setPartnerTypes] = useState([]);
-  const [selectedPartnerType, setSelectedPartnerType] = useState("");
+  const [selectedPartnerType, setSelectedPartnerType] = useState("Any");
   const onOpenModal = () => setPartnerModalOpen(true);
   const onCloseModal = () => setPartnerModalOpen(false);
 
@@ -58,7 +58,7 @@ export default function Partners() {
         const data = await result.json();
         if (data && data.records) {
           setPartners(data.records);
-          const partnerTypesSet = new Set();
+          const partnerTypesSet = new Set(["Any"]);
           for (const p of data.records) {
             if (!partnerTypesSet.has(p.fields["Partner Type"])) {
               partnerTypesSet.add(p.fields["Partner Type"]);
@@ -93,7 +93,8 @@ export default function Partners() {
     }
     if (selectedPartnerType.length > 0) {
       newPartners = newPartners.filter((p) => {
-        console.log("test", selectedPartnerType, p.fields["Partner Type"]);
+        console.debug("test", selectedPartnerType, p.fields["Partner Type"]);
+        if (selectedPartnerType === "Any") return true;
         return (
           p.fields["Partner Type"]?.toLowerCase() ===
           selectedPartnerType.toLowerCase()
@@ -139,14 +140,15 @@ export default function Partners() {
           />
           <Flex gap="40px">
             <SelectRoot
+              value={[selectedPartnerType]}
               collection={createListCollection({ items: partnerTypes })}
               size="sm"
               width="320px"
-              onValueChange={(e) => setSelectedPartnerType(e.value[0])}
+              onValueChange={(e) => setSelectedPartnerType(e.value?.[0])}
             >
               <SelectLabel>Partner Type</SelectLabel>
               <SelectTrigger>
-                <SelectValueText placeholder="Any" />
+                <SelectValueText />
               </SelectTrigger>
               <SelectContent>
                 {partnerTypes.map((type, i) => (
